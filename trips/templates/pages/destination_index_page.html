@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Каталог направлений</p>
+    <h1>Куда <em>едем</em></h1>
+    <p class="section-sub">Каждое направление проверено лично дважды: гостями и организаторами. Фильтруйте по типу, длительности, расстоянию и дате ближайшего выезда. Гуамское ущелье, Ейск — в подготовке: плашка «скоро», заявки в лист ожидания.</p>
+  </div>
+
+  <div class="filters">
+    <div class="wrap filters-in">
+      <button class="chip" type="button" data-filter-type="all" aria-pressed="true">все</button>
+      <button class="chip" type="button" data-filter-type="micro" aria-pressed="false">микропляж</button>
+      <button class="chip" type="button" data-filter-type="wild" aria-pressed="false">дикий пляж</button>
+      <button class="chip" type="button" data-filter-type="beach" aria-pressed="false">пляж</button>
+      <button class="chip" type="button" data-filter-type="mountain" aria-pressed="false">горы</button>
+      <button class="chip" type="button" data-filter-type="city" aria-pressed="false">город</button>
+      <select data-filter-duration aria-label="Длительность">
+        <option value="all">любая длительность</option>
+        <option value="day">один день</option>
+        <option value="night">с ночёвкой</option>
+      </select>
+      <select data-filter-distance aria-label="Расстояние">
+        <option value="all">любое расстояние</option>
+        <option value="near">до 100 км</option>
+        <option value="mid">100–200 км</option>
+        <option value="far">дальше 200 км</option>
+      </select>
+      <select data-filter-date aria-label="Дата ближайшего выезда">
+        <option value="all">любая дата</option>
+        <option value="7">выезд в ближайшие 7 дней</option>
+        <option value="14">выезд в ближайшие 14 дней</option>
+      </select>
+      <span class="count" data-count></span>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-bottom:clamp(60px,9vh,110px)">
+    <div class="dir-grid" data-catalog>
+      {% for dest in destinations %}
+      <a class="dir-card" href="{% pageurl dest %}"
+         data-type="{{ dest.ew_type }}"
+         data-duration="{{ dest.ew_duration }}"
+         data-distance="{{ dest.ew_distance_bucket }}"
+         {% if dest.days_away != '' %}data-days-away="{{ dest.days_away }}"{% endif %}>
+        <div class="ph">
+          {% if dest.cover %}
+            {% image dest.cover fill-900x675 format-webp as c_img %}
+            <img src="{{ c_img.url }}" alt="{{ dest.subtitle }}" loading="lazy">
+          {% endif %}
+          <span class="plate">{{ dest.ew_type_label }}</span>
+          {% if dest.is_stub %}<span class="plate plate-sun" style="position:absolute;right:14px;bottom:14px;box-shadow:none">скоро</span>{% endif %}
+        </div>
+        <div class="body">
+          {% if dest.price_from %}<span class="price-tag">от {{ dest.price_from }} ₽</span>{% endif %}
+          <h3>{{ dest.title }}</h3>
+          {% if dest.subtitle %}<p class="tag">{{ dest.subtitle }}</p>{% endif %}
+          <div class="foot">
+            <span class="days">
+              {% if dest.is_stub %}<span>даты скоро</span>
+              {% else %}
+                {% for day in dest.ew_days_list %}<span>{{ day }}</span>{% endfor %}
+                {% if dest.next_departure %}<span>{{ dest.next_departure.date_label }}</span>{% endif %}
+              {% endif %}
+            </span>
+            <span class="more-link">Подробнее →</span>
+          </div>
+        </div>
+      </a>
+      {% empty %}
+      <p class="section-sub">Направления скоро появятся.</p>
+      {% endfor %}
+    </div>
+  </div>
+</main>
+{% endblock %}

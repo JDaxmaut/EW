@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Юридическое</p>
+    <h1>Документы</h1>
+    <p class="section-sub">Каждый документ — отдельной страницей, с датой редакции и полным текстом.</p>
+  </div>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap" style="max-width:900px">
+      <div class="doc-list">
+        {% for doc in legal_pages %}
+          <a class="doc-card" href="{% pageurl doc %}">
+            <h3>{{ doc.title }}</h3>
+            <p>{{ doc.intro|default:doc.search_description }}</p>
+            <span class="micro">Редакция: {{ doc.updated }} · читать полностью →</span>
+          </a>
+        {% empty %}
+          <p class="section-sub">Документы скоро появятся.</p>
+        {% endfor %}
+      </div>
+      <p style="margin-top:26px;color:var(--ink-60)">Вопросы по любому пункту — в мессенджерах: отвечаем без юридических ребусов. Куки-баннер ссылается именно на политику обработки данных.</p>
+    </div>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% load static wagtailcore_tags wagtailimages_tags %}<!DOCTYPE html>
+<html lang="ru" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ page.seo_title|default:page.title }}{% endblock %} — {{ SITE_NAME }}</title>
+  <meta name="description" content="{% block description %}{{ page.search_description|default:"Поездки выходного дня на море по Краснодарскому краю." }}{% endblock %}">
+  <meta name="theme-color" content="#0d211d">
+
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+
+  {% autoescape off %}
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"TravelAgency","name":"{{ SITE_NAME }}",
+   "description":"Поездки выходного дня и короткие туры на море по Краснодарскому краю.",
+   "url":"{{ request.scheme }}://{{ request.get_host }}"}
+  </script>
+  {% endautoescape %}
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Manrope:wght@400;500;700;800&display=swap"
+        as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Manrope:wght@400;500;700;800&display=swap">
+  </noscript>
+
+  <script>document.documentElement.classList.remove("no-js");</script>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+{% include "includes/header.html" %}
+
+{% block content %}{% endblock %}
+
+{% include "includes/footer.html" %}
+
+{% include "includes/cookie_bar.html" %}
+
+<script src="{% static 'js/site.js' %}?v={{ STATIC_VERSION }}" defer></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

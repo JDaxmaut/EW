@@ -1,0 +1,28 @@
+{% load static wagtailcore_tags %}
+<header class="site-header">
+  <div class="wrap header-in">
+    <a class="logo" href="/" aria-label="{{ SITE_NAME }} — на главную">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-text">Нескучные <span>выходные</span></span>
+    </a>
+    <button class="burger" aria-expanded="false" aria-label="Меню"><span></span></button>
+    <div class="nav-clip">
+    <nav class="main-nav" aria-label="Основная навигация">
+      {% slugurl 'catalog' as catalog_url %}
+      {% if catalog_url %}
+        <a href="{{ catalog_url }}"{% if page.slug == 'catalog' %} aria-current="page"{% endif %}>Направления</a>
+      {% endif %}
+      <a href="/schedule/"{% if page.slug == 'schedule' %} aria-current="page"{% endif %}>Расписание</a>
+      {% slugurl 'about' as about_url %}
+      {% if about_url %}
+        <a href="{{ about_url }}"{% if page.slug == 'about' %} aria-current="page"{% endif %}>О нас</a>
+      {% endif %}
+      {% slugurl 'contacts' as contact_url %}
+      {% if contact_url %}
+        <a href="{{ contact_url }}"{% if page.slug == 'contacts' %} aria-current="page"{% endif %}>Контакты</a>
+        <a class="btn btn-coral btn-sm" href="{{ contact_url }}#messengers">Написать нам</a>
+      {% endif %}
+    </nav>
+    </div>
+  </div>
+</header>

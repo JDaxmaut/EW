@@ -1,0 +1,36 @@
+{% load wagtailimages_tags %}
+<section class="bg-mint-wash py-[clamp(64px,11vh,130px)] px-[clamp(20px,6vw,96px)]">
+  <div class="max-w-[1240px] mx-auto">
+
+    <div class="max-w-[620px] mb-[clamp(32px,5vw,52px)]">
+      <div class="eyebrow mb-4">Фотографии</div>
+      <h2 class="h-section text-ink text-[clamp(30px,4.4vw,58px)]">{{ value.heading }}</h2>
+      {% if value.subheading %}
+        <p class="mt-5 text-[15px] leading-relaxed text-ink-80">{{ value.subheading }}</p>
+      {% endif %}
+    </div>
+
+    {# Намеренно «рваная» сетка: разные пропорции плиток #}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      {% for item in value.images %}
+        {% image item.value fill-800x800 format-webp as wall %}
+        <div class="rounded-card overflow-hidden bg-mint-100
+                    {% if forloop.counter0 == 0 or forloop.counter0 == 5 %}col-span-2 row-span-2 aspect-square
+                    {% else %}aspect-[4/5]{% endif %}">
+          <img src="{{ wall.url }}" alt="" loading="lazy" decoding="async"
+               class="card-media w-full h-full">
+        </div>
+      {% empty %}
+        {% for i in "123456" %}
+          <div class="rounded-card overflow-hidden bg-mint-100 aspect-[4/5]
+                      flex items-center justify-center">
+            <span class="text-[12px] uppercase tracking-[0.14em] text-ink-60/70">
+              Фото {{ forloop.counter }}
+            </span>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+
+  </div>
+</section>

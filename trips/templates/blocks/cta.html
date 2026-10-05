@@ -1,0 +1,17 @@
+{% load wagtailcore_tags %}
+<section class="bg-ink text-white grain py-[clamp(72px,13vh,160px)] px-[clamp(20px,6vw,96px)]">
+  <div class="max-w-[760px] mx-auto text-center">
+    <h2 class="h-section text-white text-[clamp(30px,4.8vw,60px)]">{{ value.heading }}</h2>
+    {% if value.text %}
+      <p class="mt-6 mx-auto max-w-[48ch] text-[clamp(15px,1.4vw,18px)] leading-relaxed text-mint-wash/75">
+        {{ value.text }}
+      </p>
+    {% endif %}
+    {% slugurl 'contacts' as contact_url %}
+    {% if value.button_url %}
+      <a href="{{ value.button_url }}" class="btn-on-ink mt-10">{{ value.button_text }}</a>
+    {% elif contact_url %}
+      <a href="{{ contact_url }}" class="btn-on-ink mt-10">{{ value.button_text }}</a>
+    {% endif %}
+  </div>
+</section>

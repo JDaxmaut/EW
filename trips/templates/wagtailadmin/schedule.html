@@ -1,0 +1,76 @@
+{% extends "wagtailadmin/base.html" %}
+{% load static wagtailcore_tags %}
+
+{% block titletag %}Расписание выездов{% endblock %}
+
+{% block content %}
+{% include "wagtailadmin/shared/header.html" with title="Расписание выездов" icon="date" %}
+
+<div class="nice-padding" style="padding:24px">
+  {% if request.session.schedule_saved %}
+    <div class="messages" style="margin-bottom:20px"><ul><li class="success">
+      Сохранено изменений: {{ request.session.schedule_saved }}
+    </li></ul></div>
+  {% endif %}
+
+  <p style="color:var(--nw-text-3);max-width:60ch;margin:0 0 22px;font-size:14px">
+    Меняйте цену и количество свободных мест прямо в таблице, затем нажмите «Сохранить».
+    Если мест не осталось, выставьте 0 — выезд сам перейдёт в статус «Мест нет».
+  </p>
+
+  <form method="post" action="{% url 'quick_save_departures' %}">
+    {% csrf_token %}
+    <table class="listing" id="schedule-table">
+      <thead>
+        <tr>
+          <th style="width:130px">Дата</th>
+          <th style="width:70px">День</th>
+          <th>Направление</th>
+          <th>Точка сбора</th>
+          <th style="width:130px">Цена, ₽</th>
+          <th style="width:90px">Всего</th>
+          <th style="width:120px">Свободно</th>
+          <th style="width:140px">Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dep in departures %}
+          <tr>
+            <td><strong>{{ dep.start_date|date:"d.m.Y" }}</strong></td>
+            <td style="color:var(--nw-text-3)">{{ dep.weekday_label }}</td>
+            <td><a href="{% pageurl dep.destination %}edit/">{{ dep.destination.title }}</a></td>
+            <td style="color:var(--nw-text-3);font-size:13.5px">
+              {{ dep.meeting_point|default:"—" }}
+            </td>
+            <td>
+              <input type="number" name="price_{{ dep.pk }}" value="{{ dep.price }}"
+                     min="1" style="width:100%">
+            </td>
+            <td style="color:var(--nw-text-3)">{{ dep.seats_total }}</td>
+            <td>
+              <input type="number" name="seats_{{ dep.pk }}" value="{{ dep.seats_left }}"
+                     min="0" max="{{ dep.seats_total }}" style="width:100%">
+            </td>
+            <td>
+              {% if dep.status == "sold_out" %}
+                <span class="pill pill-warning">Мест нет</span>
+              {% elif dep.status == "cancelled" %}
+                <span class="pill" style="background:var(--nw-surface-2)">Отменён</span>
+              {% else %}
+                <span class="pill pill-success">Планируется</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" style="color:var(--nw-text-3)">Выездов пока нет.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div style="margin-top:20px;display:flex;gap:10px;align-items:center">
+      <button type="submit" class="button">Сохранить изменения</button>
+      <a class="button button-secondary" href="/cms/">К списку страниц</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

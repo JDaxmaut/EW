@@ -1,0 +1,39 @@
+<section class="bg-white py-[clamp(64px,11vh,130px)] px-[clamp(20px,6vw,96px)]">
+  <div class="max-w-[1240px] mx-auto">
+
+    <div class="max-w-[620px] mb-[clamp(36px,5vw,56px)]">
+      <div class="eyebrow mb-4">Как это устроено</div>
+      <h2 class="h-section text-ink text-[clamp(30px,4.4vw,58px)]">{{ value.heading }}</h2>
+    </div>
+
+    {# Лента шагов, соединённых бирюзовой линией. Без иконок в кружках. #}
+    <div class="relative">
+      <div aria-hidden="true"
+           class="hidden md:block absolute left-0 right-0 top-[18px] h-px bg-mint-line"></div>
+
+      <ol class="grid gap-[clamp(28px,4vw,48px)] md:grid-cols-2 lg:grid-cols-4 relative">
+        {% for step in value.items %}
+          <li class="relative pt-0">
+            <div class="relative z-10 w-9 h-9 rounded-pill bg-turquoise text-ink
+                        flex items-center justify-center font-sans text-[12px] font-medium
+                        mb-5 shadow-glow">
+              {{ forloop.counter }}
+            </div>
+            {% if step.time %}
+              <div class="font-sans text-[12px] uppercase tracking-[0.16em] text-turquoise-700">
+                {{ step.time }}
+              </div>
+            {% endif %}
+            <h3 class="mt-2 font-serif text-[clamp(20px,2vw,24px)] leading-snug text-ink">
+              {{ step.title }}
+            </h3>
+            {% if step.text %}
+              <p class="mt-3 text-[14px] leading-relaxed text-ink-60 max-w-[30ch]">{{ step.text }}</p>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,14 @@
+{% load wagtailcore_tags %}
+<div class="w-panel__header"><h2>Черновики направлений</h2></div>
+<div class="w-panel__content">
+  <table class="listing" style="box-shadow:none;border:none">
+    <tbody>
+      {% for draft in drafts %}
+        <tr>
+          <td><a href="{% pageurl draft %}edit/">{{ draft.title }}</a></td>
+          <td style="width:90px"><span class="pill pill-warning">Черновик</span></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

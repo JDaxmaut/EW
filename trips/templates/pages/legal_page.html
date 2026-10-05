@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+<main>
+  <div class="wrap page-head" style="padding-bottom:16px">
+    <p class="breadcrumbs"><a href="{{ legal_index_url }}">Документы</a> → {{ page.title }}</p>
+    <h1 style="font-size:clamp(2rem,4.4vw,3.4rem)">{{ page.title }}</h1>
+    <p class="doc-meta">
+      <span>Редакция: {{ page.updated|default:"октябрь 2026" }}</span>
+      <span>{{ company_name }}{% if company_inn %} · {{ company_inn }}{% endif %}</span>
+    </p>
+  </div>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap doc-wrap">
+      <div class="doc-body">
+        {{ page.body|richtext }}
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

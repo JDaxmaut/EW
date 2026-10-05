@@ -1,0 +1,69 @@
+<div style="background:#242d24;border:1px solid rgba(255,255,255,0.07);border-radius:10px;overflow:hidden;">
+  <div style="padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:space-between;">
+    <span style="color:#ddd8cc;font-size:13px;font-weight:500;">Ближайшие заезды</span>
+    <span style="color:rgba(221,216,204,0.4);font-size:12px;">{{ dates|length }} заездов</span>
+  </div>
+
+  {% if dates %}
+  <form method="post" action="/tochka-cms/tour-dates/quick-save/">
+    {% csrf_token %}
+
+    {# Desktop: таблица #}
+    <div class="ud-table-wrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+    <table style="width:100%;border-collapse:collapse;min-width:520px;">
+      <thead>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.07);">
+          <th style="padding:10px 24px;text-align:left;color:rgba(221,216,204,0.45);font-size:11px;font-weight:400;text-transform:uppercase;letter-spacing:0.1em;">Тур</th>
+          <th style="padding:10px 16px;text-align:left;color:rgba(221,216,204,0.45);font-size:11px;font-weight:400;text-transform:uppercase;letter-spacing:0.1em;">Даты</th>
+          <th style="padding:10px 16px;text-align:center;color:rgba(221,216,204,0.45);font-size:11px;font-weight:400;text-transform:uppercase;letter-spacing:0.1em;">Цена</th>
+          <th style="padding:10px 16px;text-align:center;color:rgba(221,216,204,0.45);font-size:11px;font-weight:400;text-transform:uppercase;letter-spacing:0.1em;">Мест</th>
+          <th style="padding:10px 16px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in dates %}
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+          <td style="padding:12px 24px;">
+            <a href="/tochka-cms/pages/{{ d.page.pk }}/edit/#tab-parameters"
+               style="color:#ddd8cc;text-decoration:none;font-size:13px;">
+              {{ d.page.title }}
+            </a>
+          </td>
+          <td style="padding:12px 16px;color:rgba(221,216,204,0.7);font-size:13px;white-space:nowrap;">
+            {{ d.start_date|date:"d.m" }} — {{ d.end_date|date:"d.m.Y" }}
+          </td>
+          <td style="padding:12px 16px;text-align:center;">
+            <input type="number" name="price_{{ d.pk }}" value="{{ d.price }}"
+                   style="width:80px;background:#1c2219;border:1px solid rgba(255,255,255,0.12);color:#ddd8cc;border-radius:6px;padding:5px 8px;font-size:13px;text-align:center;">
+          </td>
+          <td style="padding:12px 16px;text-align:center;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+              <input type="number" name="spots_{{ d.pk }}" value="{{ d.spots_left }}"
+                     min="0" max="{{ d.total_spots }}"
+                     style="width:56px;background:#1c2219;border:1px solid rgba(255,255,255,0.12);color:#ddd8cc;border-radius:6px;padding:5px 8px;font-size:13px;text-align:center;">
+              <span style="color:rgba(221,216,204,0.35);font-size:12px;">/ {{ d.total_spots }}</span>
+            </div>
+          </td>
+          <td style="padding:12px 16px;text-align:center;">
+            <a href="/tochka-cms/pages/{{ d.page.pk }}/edit/"
+               style="color:rgba(221,216,204,0.4);font-size:12px;text-decoration:none;">✎</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+
+    <div style="padding:14px 24px;border-top:1px solid rgba(255,255,255,0.07);text-align:right;">
+      <button type="submit"
+              style="background:#C86B49;color:#F4F1EA;border:none;padding:8px 20px;border-radius:8px;font-size:13px;cursor:pointer;">
+        Сохранить изменения
+      </button>
+    </div>
+  </form>
+  {% else %}
+  <div style="padding:32px 24px;text-align:center;color:rgba(221,216,204,0.35);font-size:13px;">
+    Нет предстоящих заездов
+  </div>
+  {% endif %}
+</div>

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+<main>
+
+  <div class="wrap page-head">
+    <p class="eyebrow">Логистика</p>
+    <h1>{{ page.title }}</h1>
+    {% if page.body %}<p class="section-sub">{{ page.body|richtext }}</p>{% endif %}
+  </div>
+
+  {% if page.meeting_points %}
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head"><div><p class="eyebrow">Точки сбора</p></div></div>
+      <div class="dir-grid">
+        {% for block in page.meeting_points %}
+          {% if block.block_type == "point" %}
+          <div class="list-plate">
+            <h3>{{ block.value.city }}{% if block.value.time %} · {{ block.value.time }}{% endif %}</h3>
+            <ul>
+              <li>{{ block.value.address }}</li>
+              {% if block.value.note %}<li>{{ block.value.note }}</li>{% endif %}
+            </ul>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if page.notes %}
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head"><div><p class="eyebrow">Что учесть</p><h2>Мелочи, <em>которые решают</em></h2></div></div>
+      <div class="principles">
+        {% for block in page.notes %}
+          {% if block.block_type == "note" %}
+          <div class="principle reveal">
+            <h3>{{ block.value.title }}</h3>
+            {% if block.value.text %}<p>{{ block.value.text }}</p>{% endif %}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+</main>
+{% endblock %}

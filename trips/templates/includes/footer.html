@@ -1,0 +1,57 @@
+{% load wagtailcore_tags %}
+{% slugurl 'catalog' as catalog_url %}
+{% slugurl 'contacts' as contact_url %}
+{% slugurl 'about' as about_url %}
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-cta">
+      <p class="display">Выходные <em>ещё есть</em></p>
+      {% if contact_url %}
+        <a class="btn btn-turquoise" href="{{ contact_url }}#messengers">Написать в мессенджер</a>
+      {% endif %}
+    </div>
+
+    <div class="footer-cols">
+      <div>
+        <h4>Контакты и мессенджеры</h4>
+        {% if requisites.phone or contact_page.phone %}<p><a href="tel:{{ PHONE_HREF }}">{{ requisites.phone|default:contact_page.phone }}</a></p>{% endif %}
+        {% if requisites.email or contact_page.email %}<p><a href="mailto:{{ requisites.email|default:contact_page.email }}">{{ requisites.email|default:contact_page.email }}</a></p>{% endif %}
+        {% if requisites.address or contact_page.address %}<p>{{ requisites.address|default:contact_page.address }}</p>{% endif %}
+        <div class="messengers">
+          {% if TELEGRAM_URL %}<a href="{{ TELEGRAM_URL }}" aria-label="Telegram">{% include "includes/svg_tg.html" %}</a>{% endif %}
+          {% if WHATSAPP_URL %}<a href="{{ WHATSAPP_URL }}" aria-label="WhatsApp">{% include "includes/svg_wa.html" %}</a>{% endif %}
+          {% if MAX_URL %}<a href="{{ MAX_URL }}" aria-label="MAX">{% include "includes/svg_max.html" %}</a>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <h4>Направления</h4>
+        <ul>
+          {% for d in footer_destinations %}
+            <li>
+              <a href="{% pageurl d %}">{{ d.title }}{% if not d.is_complete %} · скоро{% endif %}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div>
+        <h4>Ещё и реквизиты</h4>
+        <ul>
+          <li><a href="{% url 'schedule' %}">Расписание</a></li>
+          {% if about_url %}<li><a href="{{ about_url }}">О нас</a></li>{% endif %}
+          {% if contact_url %}<li><a href="{{ contact_url }}">Контакты</a></li>{% endif %}
+          {% for doc in legal_pages %}
+            <li><a href="{% pageurl doc %}">{{ doc.title }}</a></li>
+          {% endfor %}
+          {% if legal_pages %}<li><a href="{{ legal_index_url }}">Все документы</a></li>{% endif %}
+        </ul>
+        {% if company_name %}<p style="margin-top:16px">{{ company_name }}<br>{{ company_inn }}</p>{% endif %}
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© {% now "Y" %} {{ SITE_NAME }}. {{ SITE_REGION }}.</span>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,39 @@
+{% load wagtailcore_tags wagtailimages_tags humanize ruplural %}
+<section class="bg-white py-[clamp(72px,12vh,140px)] px-[clamp(20px,6vw,96px)]">
+  <div class="max-w-[1240px] mx-auto grid lg:grid-cols-[0.85fr_1.15fr] gap-[clamp(32px,6vw,96px)] items-start">
+
+    <div class="relative">
+      {% if value.numeral %}
+        <div class="font-serif font-medium leading-[0.78] text-mint-300 select-none
+                    text-[clamp(96px,17vw,240px)]">
+          {{ value.numeral }}
+        </div>
+      {% endif %}
+      {% if value.eyebrow %}
+        <div class="eyebrow mt-3">{{ value.eyebrow }}</div>
+      {% endif %}
+    </div>
+
+    <div>
+      <h2 class="h-section text-ink text-[clamp(28px,4vw,52px)] max-w-[20ch] mb-8">
+        {{ value.heading }}
+      </h2>
+      <div class="text-[clamp(15px,1.4vw,18px)] leading-airy text-ink-80 max-w-[54ch]
+                  [&>p]:mb-6 [&>p:last-child]:mb-0">
+        {{ value.body|richtext }}
+      </div>
+
+      {% if value.stats %}
+      <div class="flex flex-wrap gap-[clamp(28px,5vw,64px)] mt-12">
+        {% for stat in value.stats %}
+          <div>
+            <div class="font-serif text-[clamp(30px,3vw,44px)] leading-none text-ink">{{ stat.value }}</div>
+            <div class="text-[12px] uppercase tracking-[0.14em] text-ink-60 mt-2">{{ stat.label }}</div>
+          </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</section>

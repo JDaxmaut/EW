@@ -1,0 +1,22 @@
+{% load wagtailcore_tags %}
+<div class="w-panel__header"><h2>Почти готовые страницы</h2></div>
+<div class="w-panel__content">
+  <p style="margin:0 0 14px;color:var(--nw-text-3);font-size:13.5px">
+    Нажмите на страницу, чтобы дописать недостающее.
+  </p>
+  <table class="listing" style="box-shadow:none;border:none">
+    <thead>
+      <tr><th>Страница</th><th style="width:220px">Чего не хватает</th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td><a href="{% pageurl row.page %}edit/">{{ row.page.title }}</a></td>
+          <td style="color:var(--nw-text-3);font-size:13.5px">
+            {{ row.percent }}% · {{ row.missing|join:"; " }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

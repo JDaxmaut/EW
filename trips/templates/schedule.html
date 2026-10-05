@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+{% load ruplural %}
+
+{% block title %}Расписание выездов{% endblock %}
+{% block description %}Расписание поездок выходного дня по Краснодарскому краю: даты, цены и свободные места.{% endblock %}
+
+{% block content %}
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Живое расписание · обновляем каждое утро</p>
+    <h1>Выезды до <em>конца сезона</em></h1>
+    <p class="section-sub">Сезон длится до первых заморозков: море принимается до ноября, горы и города — круглый год. Мест нет? Оставьте заявку — соберём добавочный автобус.</p>
+  </div>
+
+  <div class="wrap" style="padding-bottom:clamp(60px,9vh,110px)">
+    {% if departures %}
+    <table class="sched-table">
+      <thead>
+        <tr><th>Дата</th><th>Направление</th><th>Места</th><th>Цена</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for dep in departures %}
+        <tr>
+          <td class="d">{{ dep.weekday_label }}, {{ dep.date_label }}</td>
+          <td>
+            <b>{{ dep.destination.title }}</b><br>
+            <span style="color:var(--ink-60);font-size:.9rem">{{ dep.destination.ew_type_label }} · {% if dep.destination.ew_duration == "night" %}с ночёвкой{% else %}один день{% endif %}</span>
+          </td>
+          <td>
+            {% if dep.seats_left == 0 %}<span class="plate plate-coral">мест нет</span>
+            {% else %}<span class="plate {% if dep.seats_left <= 5 %}plate-sun{% else %}plate-mint{% endif %}">свободно {{ dep.seats_left }} из {{ dep.seats_total }}</span>{% endif %}
+          </td>
+          <td class="p">от {{ dep.price|price }} ₽</td>
+          <td><a class="btn btn-turquoise btn-sm" href="{% pageurl dep.destination %}#booking">Записаться</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="section-sub">Расписание скоро появится. Напишите нам — подберём дату.</p>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

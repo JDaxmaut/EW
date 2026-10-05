@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags ruplural %}
+
+{% block content %}
+<main>
+
+  {# ── ГЕРОЙ НАПРАВЛЕНИЯ ────────────────────────────────────────── #}
+  <section class="tour-hero" data-hero>
+    <div class="wrap tour-hero-grid">
+      <div class="th-photo">
+        {% if page.cover %}
+          {% image page.cover fill-1400x1050 format-webp as th_main %}
+          <img class="th-slide on" data-slide src="{{ th_main.url }}" alt="{{ page.title }}: кадр 1" fetchpriority="high">
+        {% endif %}
+        {% for photo in hero_photos %}
+          {% image photo fill-1400x1050 format-webp as th_slide %}
+          <img class="th-slide" data-slide src="{{ th_slide.url }}" alt="{{ page.title }}: кадр {{ forloop.counter }}" loading="lazy">
+        {% endfor %}
+        <span class="plate th-cap">{{ page.ew_type_label }}{% if page.distance %} · {{ page.distance }} от Краснодара{% endif %}</span>
+        <div class="th-strip" role="group" aria-label="Фотографии тура">
+          {% if page.cover %}
+            {% image page.cover fill-420x300 format-webp as th_t0 %}
+            <button type="button" data-thumb class="on" aria-label="Кадр 1"><img src="{{ th_t0.url }}" alt=""></button>
+          {% endif %}
+          {% for photo in hero_photos %}
+            {% image photo fill-420x300 format-webp as th_t %}
+            <button type="button" data-thumb aria-label="Кадр {{ forloop.counter }}"><img src="{{ th_t.url }}" alt=""></button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="th-side">
+        <p class="eyebrow">{{ SITE_REGION|lower }} · выезды: {% for day in page.ew_days_list %}{{ day }}{% if not forloop.last %} {% endif %}{% empty %}по записи{% endfor %}</p>
+        <h1>{{ page.title }}</h1>
+        {% if page.subtitle %}<p class="lead">{{ page.subtitle }}.</p>{% endif %}
+
+        {% if page.tags.count %}
+        <div class="tag-chips" style="margin:14px 0 0">
+          {% for tag in page.tags.all %}<span class="plate plate-mint" style="box-shadow:none">{{ tag.name }}</span>{% endfor %}
+        </div>
+        {% endif %}
+
+        <dl class="facts">
+          {% if page.price_from %}<div><dt>Цена</dt><dd style="color:var(--coral-btn)">от {{ page.price_from }} ₽</dd></div>{% endif %}
+          <div><dt>Длительность</dt><dd>{{ page.duration }}{% if page.travel_time %}, ~{{ page.travel_time }} в пути{% endif %}</dd></div>
+          <div><dt>Группа</dt><dd>до 18 человек</dd></div>
+          <div><dt>Расстояние</dt><dd>{{ page.distance|default:"—" }}</dd></div>
+          <div><dt>Парковка</dt><dd>{{ page.parking|default:"уточним при записи" }}</dd></div>
+          <div><dt>Ближайший выезд</dt><dd>{{ next_date|default:"уточняется" }}</dd></div>
+        </dl>
+
+        <p class="hero-actions">
+          <a class="btn btn-coral" href="#booking">Выбрать дату</a>
+          <a class="btn btn-ghost" href="#itinerary">Программа</a>
+        </p>
+
+        {% if page.is_stub %}
+          <p class="stub-note">Направление готовим: напишите нам — расскажем, когда откроем продажу.</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  {# ── КУДА И ЗАЧЕМ ────────────────────────────────────────────── #}
+  <section class="section" style="padding-top:clamp(40px,6vh,72px)">
+    <div class="wrap desc-grid">
+      <div class="tour-text">
+        <p class="eyebrow">Куда и зачем</p>
+        {{ page.description|richtext }}
+      </div>
+      <div>
+        <p class="eyebrow">Особенности выезда</p>
+        <div class="num-list">
+          {% for item in highlights %}<div><span>{{ item }}</span></div>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ── БЛИЖАЙШИЕ ЗАЕЗДЫ ────────────────────────────────────────── #}
+  <section class="section" id="booking" style="background:var(--mint-100);padding-top:clamp(48px,7vh,84px)">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Ближайшие заезды</p>
+          <h2>Выберите <em>дату</em></h2>
+        </div>
+        <p class="section-sub" style="margin:0">Выезды {{ page.ew_days_list|join:", " }} — места придерживаем на сутки после заявки.</p>
+      </div>
+
+      {% if departures %}
+      <div class="date-rows" data-dates data-tour="{{ page.title }}">
+        {% for dep in departures %}
+        <button type="button" class="date-row" data-label="{{ dep.weekday_label }}, {{ dep.date_label }}" data-price="{{ dep.price|price }} ₽" data-spots="{{ dep.seats_left }}">
+          <span class="dr-date">{{ dep.weekday_label }}, {{ dep.date_label }}</span>
+          <span class="plate {% if dep.seats_left == 0 %}plate-coral{% elif dep.seats_left <= 5 %}plate-sun{% else %}plate-mint{% endif %}" style="box-shadow:none">свободно {{ dep.seats_left }} из {{ dep.seats_total }}</span>
+          <span class="dr-price">{{ dep.price|price }} ₽</span>
+          <span class="dr-chev" aria-hidden="true">→</span>
+        </button>
+        {% endfor %}
+      </div>
+      <div class="sel-line">
+        <span class="micro">Выбранный заезд</span>
+        <b id="selLine">—</b>
+        <a class="btn btn-coral btn-sm" id="selLink" href="{{ MESSENGER_URL }}" data-chat-base="{{ MESSENGER_URL }}" style="margin-left:auto">Связаться</a>
+      </div>
+      {% else %}
+        <p class="section-sub">Расписание по этому направлению уточняется. Напишите нам — подберём дату.</p>
+      {% endif %}
+    </div>
+  </section>
+
+  {# ── ПРОГРАММА ПО ЧАСАМ ──────────────────────────────────────── #}
+  {% if page.programme %}
+  <section class="section" id="itinerary">
+    <div class="wrap" style="max-width:920px">
+      <div class="section-head">
+        <div><p class="eyebrow">Программа выезда</p><h2>День <em>по часам</em></h2></div>
+      </div>
+      <div class="acc">
+        {% for block in page.programme %}
+          {% if block.block_type == "day" %}
+          <div class="acc-item">
+            <button class="acc-btn" aria-expanded="false">{{ block.value.title }}<span class="ico" aria-hidden="true">+</span></button>
+            <div class="acc-panel"><div class="acc-panel-in">
+              {{ block.value.text|richtext }}
+              {% if block.value.image %}
+                {% image block.value.image fill-1200x675 format-webp as prog_img %}
+                <img src="{{ prog_img.url }}" alt="{{ block.value.title }}" loading="lazy" style="border-radius:14px;margin-top:12px;width:100%;aspect-ratio:16/9;object-fit:cover">
+              {% endif %}
+            </div></div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {# ── ЧТО ВХОДИТ / НЕ ВХОДИТ / ЧТО ВЗЯТЬ ──────────────────────── #}
+  <section class="section" style="padding-top:0;background:var(--mint-100)">
+    <div class="wrap dir-cols">
+      <div>
+        <div class="list-plate">
+          <h3>Что входит в цену</h3>
+          <ul>{% for item in included %}<li>{{ item }}</li>{% endfor %}</ul>
+        </div>
+        <div class="list-plate sun">
+          <h3>Что не входит</h3>
+          <ul>{% for item in excluded %}<li>{{ item }}</li>{% endfor %}</ul>
+        </div>
+      </div>
+      <aside>
+        <div class="list-plate">
+          <h3>Что взять с собой</h3>
+          <ul>{% for item in packing %}<li>{{ item }}</li>{% endfor %}</ul>
+        </div>
+        {% if page.stay %}
+        <div class="list-plate sun">
+          <h3>Где остановимся</h3>
+          <ul>
+            {% for block in page.stay %}
+              {% if block.block_type == "place" %}
+                <li><b>{{ block.value.name }}</b>{% if block.value.kind %} — {{ block.value.kind }}{% endif %}{% if block.value.text %}: {{ block.value.text|striptags }}{% endif %}</li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        <div class="list-plate sun">
+          <h3>Отмена и перенос</h3>
+          <ul>
+            <li><b>Отмена за 48+ часов до выезда</b> — возврат 100% или перенос на любую дату</li>
+            <li><b>Отмена за 24–47 часов</b> — возврат 50% или перенос с доплатой разницы</li>
+            <li><b>Отмена за 12–23 часа</b> — предоплата остаётся депозитом на следующий выезд</li>
+            <li><b>Менее 12 часов и неявка</b> — предоплата не возвращается</li>
+          </ul>
+          <p style="margin:12px 0 0;font-size:.9rem;color:var(--ink-60)">При форс-мажоре (штормовое предупреждение, закрытие маршрута) — возврат 100% независимо от срока.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {# ── ФОТО С МАРШРУТА ─────────────────────────────────────────── #}
+  {% if wall_photos %}
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head">
+        <div><p class="eyebrow">Мы там были</p><h2>Кадры <em>с маршрута</em></h2></div>
+      </div>
+      <div class="wall">
+        {% for photo in wall_photos %}
+          {% image photo fill-900x900 format-webp as wall_img %}
+          <figure class="wall-item {% cycle 'w-c3' 'w-t2' 'w-c2' %}">
+            <img src="{{ wall_img.url }}" alt="{{ page.title }}: кадр с выезда {{ forloop.counter }}" loading="lazy">
+            <figcaption class="wall-cap">{{ page.title }}</figcaption>
+          </figure>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {# ── FAQ ─────────────────────────────────────────────────────── #}
+  {% if page.faq %}
+  <section class="section" style="padding-top:0">
+    <div class="wrap" style="max-width:900px">
+      <div class="section-head">
+        <div><p class="eyebrow">Про это направление спрашивают</p><h2>Частые <em>вопросы</em></h2></div>
+      </div>
+      <div class="acc">
+        {% for block in page.faq %}
+          {% if block.block_type == "faq" %}
+          <div class="acc-item">
+            <button class="acc-btn" aria-expanded="false">{{ block.value.question }}<span class="ico" aria-hidden="true">+</span></button>
+            <div class="acc-panel"><div class="acc-panel-in"><p>{{ block.value.answer }}</p></div></div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {# ── ПОХОЖИЕ НАПРАВЛЕНИЯ ─────────────────────────────────────── #}
+  {% if siblings %}
+  <section class="section" style="padding-top:0;background:var(--mint-100)">
+    <div class="wrap">
+      <div class="section-head">
+        <div><p class="eyebrow">Похожие направления</p><h2>Куда ещё <em>едем</em></h2></div>
+      </div>
+      <div class="dir-grid">
+        {% for other in siblings %}
+        <a class="dir-card" href="{% pageurl other %}">
+          <div class="ph">
+            {% if other.cover %}
+              {% image other.cover fill-900x675 format-webp as sib_img %}
+              <img src="{{ sib_img.url }}" alt="{{ other.title }}" loading="lazy">
+            {% endif %}
+            <span class="plate">{{ other.ew_type_label }}</span>
+          </div>
+          <div class="body">
+            {% if other.price_from %}<span class="price-tag">от {{ other.price_from }} ₽</span>{% endif %}
+            <h3>{{ other.title }}</h3>
+            {% if other.subtitle %}<p class="tag clamp2">{{ other.subtitle }}</p>{% endif %}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {# ── CTA ──────────────────────────────────────────────────────── #}
+  <section class="section on-dark">
+    <div class="section-bg" style="background-image:url('{% static 'img/ew/texture-water.webp' %}')" aria-hidden="true"></div>
+    <div class="wrap faq-grid">
+      <div>
+        <h2>Едем в <em>{{ page.title }}</em>?</h2>
+        <p class="section-sub">Бронь — диалог в мессенджере: пришлём свободные даты, ответим на вопросы и придержим место на сутки. Предоплата нужна только за 48 часов до выезда.</p>
+      </div>
+      <div class="signup-card">
+        <h3>Заявка на {{ page.title }}</h3>
+        <p class="hint">Напишите в любой мессенджер — направление уже знаем, останутся даты и места.</p>
+        {% include "includes/msn_list.html" %}
+        <p class="msn-note">Отвечаем быстро, обычно в течение нескольких часов. Бронь — диалог в мессенджере: напишите, и мы придержим место.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+{% endblock %}

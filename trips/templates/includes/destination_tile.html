@@ -1,0 +1,36 @@
+{% load wagtailcore_tags wagtailimages_tags humanize ruplural %}
+{# Плитка направления: только фото и название. Текст живёт на белой карточке, а не в градиенте. #}
+{% if dest.url %}
+  <a href="{% pageurl dest %}" class="group relative block h-full min-h-[220px] rounded-card
+            overflow-hidden no-underline text-inherit">
+    {% if dest.cover %}
+      {% image dest.cover fill-1200x900 format-webp as tile_img %}
+      <img src="{{ tile_img.url }}" alt="{{ dest.title }}" loading="lazy" decoding="async"
+           class="card-media absolute inset-0">
+    {% else %}
+      <div class="absolute inset-0 bg-gradient-to-br from-turquoise to-mint-300"></div>
+    {% endif %}
+
+    <div class="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent"></div>
+
+    <span class="tag-solid absolute top-4 left-4">{{ dest.get_kind_display }}</span>
+
+    <div class="absolute inset-x-0 bottom-0 p-5 flex items-end justify-between gap-4
+                bg-white/92 backdrop-blur-sm rounded-t-card">
+      <div>
+        <div class="font-serif text-[clamp(20px,2vw,26px)] leading-tight text-ink">{{ dest.title }}</div>
+        {% if dest.duration %}
+          <div class="text-[11.5px] uppercase tracking-[0.14em] text-ink-60 mt-1">{{ dest.duration }}</div>
+        {% endif %}
+      </div>
+      {% if dest.price_from %}
+        <div class="font-sans text-[13px] text-coral-deep whitespace-nowrap">от {{ dest.price_from }} ₽</div>
+      {% endif %}
+    </div>
+  </a>
+{% else %}
+  <div class="relative h-full min-h-[220px] rounded-card overflow-hidden bg-mint-100
+              flex items-end p-5">
+    <span class="text-ink-60 text-[14px]">{{ dest.title }}</span>
+  </div>
+{% endif %}

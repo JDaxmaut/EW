@@ -1,0 +1,50 @@
+{% load wagtailcore_tags %}
+<section class="bg-white py-[clamp(64px,11vh,130px)] px-[clamp(20px,6vw,96px)]">
+  <div class="max-w-[1240px] mx-auto grid lg:grid-cols-[1fr_1fr] gap-[clamp(32px,5vw,72px)]">
+
+    <div>
+      <div class="eyebrow mb-4">Ответы</div>
+      <h2 class="h-section text-ink text-[clamp(28px,4vw,52px)]">{{ value.heading }}</h2>
+
+      <div class="mt-10 divide-y divide-mint-line border-y border-mint-line">
+        {% for item in value.items %}
+          <div x-data="{ open: false }">
+            <button @click="open = !open"
+                    class="w-full flex items-start justify-between gap-4 bg-transparent border-0
+                           py-5 text-left cursor-pointer font-sans text-ink">
+              <span class="text-[15px] leading-snug">{{ item.question }}</span>
+              <span class="flex-shrink-0 w-6 h-6 rounded-pill bg-mint-100 text-turquoise-700
+                           flex items-center justify-center transition-transform duration-300"
+                    :class="open ? 'rotate-45' : ''">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 4v12M4 10h12"/>
+                </svg>
+              </span>
+            </button>
+            <div x-show="open" x-collapse>
+              <p class="pb-5 pr-10 text-[14px] leading-relaxed text-ink-60">{{ item.answer }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# Форма записи стоит рядом с вопросами — человек сразу может написать #}
+    {% slugurl 'contacts' as contact_url %}
+    {% if contact_url %}
+    <div class="lg:pt-16">
+      <div class="rounded-card bg-mint-wash p-[clamp(24px,3.4vw,40px)]">
+        <div class="eyebrow mb-4">Запись</div>
+        <h3 class="font-serif text-[clamp(24px,2.8vw,34px)] leading-snug text-ink">
+          Остались вопросы — напишите
+        </h3>
+        <p class="mt-4 text-[14px] leading-relaxed text-ink-60">
+          Ответим в мессенджере, подберём дату и скажем, сколько мест осталось.
+        </p>
+        <a href="{{ contact_url }}" class="btn-primary mt-8">Записаться на выезд</a>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</section>

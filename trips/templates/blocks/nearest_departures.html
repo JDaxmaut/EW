@@ -1,0 +1,88 @@
+{% load wagtailcore_tags wagtailimages_tags humanize ruplural %}
+<section id="departures" class="bg-ink text-white py-[clamp(72px,12vh,140px)] grain">
+  <div class="max-w-[1240px] mx-auto px-[clamp(20px,6vw,96px)]">
+
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-[clamp(32px,5vw,56px)]">
+      <div>
+        <div class="eyebrow-on-ink mb-4">Расписание</div>
+        <h2 class="h-section text-white text-[clamp(30px,4.4vw,58px)]">{{ value.heading }}</h2>
+        {% if value.subheading %}
+          <p class="mt-5 max-w-[46ch] text-[15px] leading-relaxed text-mint-wash/70">
+            {{ value.subheading }}
+          </p>
+        {% endif %}
+      </div>
+
+      <div class="flex gap-2 flex-shrink-0" x-data="{ at: 0 }">
+        <button @click="document.getElementById('dep-track').scrollBy({left:-380, behavior:'smooth'})"
+                aria-label="Назад"
+                class="w-11 h-11 rounded-pill border border-mint-300/40 bg-transparent
+                       text-mint-300 cursor-pointer transition-colors hover:bg-mint-300 hover:text-ink">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button @click="document.getElementById('dep-track').scrollBy({left:380, behavior:'smooth'})"
+                aria-label="Вперёд"
+                class="w-11 h-11 rounded-pill border border-mint-300/40 bg-transparent
+                       text-mint-300 cursor-pointer transition-colors hover:bg-mint-300 hover:text-ink">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    {% with departures=nearest_departures|take:value.limit %}
+    <div id="dep-track"
+         class="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-[clamp(20px,6vw,96px)]
+                px-[clamp(20px,6vw,96px)] no-scrollbar">
+
+      {% for dep in departures %}
+      <article class="snap-start shrink-0 w-[300px] sm:w-[340px] rounded-card overflow-hidden
+                      bg-white flex flex-col">
+        <div class="relative aspect-[4/5] bg-mint-100">
+          {% if dep.destination.cover %}
+            {% image dep.destination.cover fill-600x750 format-webp as dep_img %}
+            <img src="{{ dep_img.url }}" alt="{{ dep.destination.title }}"
+                 loading="lazy" decoding="async" class="w-full h-full object-cover">
+          {% endif %}
+          {% if dep.seats_left <= 5 %}
+            <span class="tag-hot absolute top-4 left-4">Мест осталось {{ dep.seats_left }}</span>
+          {% endif %}
+        </div>
+
+        <div class="p-6 flex flex-col flex-1">
+          <div class="font-serif text-[clamp(24px,2.6vw,32px)] leading-tight text-ink">
+            {{ dep.date_label }}
+          </div>
+          <div class="mt-1 text-[12px] uppercase tracking-[0.14em] text-ink-60">
+            {{ dep.weekday_label }} · {{ dep.destination.duration }}
+          </div>
+
+          <div class="mt-4">
+            <span class="tag-solid">{{ dep.destination.title }}</span>
+          </div>
+
+          {% if dep.meeting_point %}
+            <p class="mt-4 text-[13px] leading-relaxed text-ink-60">
+              {% if dep.meeting_time %}Сбор {{ dep.meeting_time|time:"H:i" }} · {% endif %}{{ dep.meeting_point }}
+            </p>
+          {% endif %}
+
+          <div class="mt-auto pt-6 flex items-center justify-between gap-3">
+            <span class="font-serif text-[22px] text-coral-deep">{{ dep.price|price }} ₽</span>
+            <a href="{% pageurl dep.destination %}#booking" class="btn-secondary !px-5 !py-3 !text-[11px]">
+              Записаться
+            </a>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+        <p class="text-mint-wash/70 text-[15px]">
+          Расписание скоро появится. Загляните в раздел «Направления» или напишите нам.
+        </p>
+      {% endfor %}
+    </div>
+    {% endwith %}
+
+  </div>
+</section>

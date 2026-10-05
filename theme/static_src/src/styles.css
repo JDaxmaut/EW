@@ -1,0 +1,270 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  ::selection {
+    background: #00c2b0;
+    color: #063d3a;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Фокус виден всегда и везде — это требование, а не украшение */
+  :focus-visible {
+    outline: 2px solid #00c2b0;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  img {
+    color: transparent;
+  }
+}
+
+@layer components {
+  /* ── Кнопки ─────────────────────────────────────────── */
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-3 px-9 py-[18px] rounded-pill
+           font-sans text-[13px] uppercase tracking-[0.18em] no-underline
+           transition-all duration-300 cursor-pointer border-0;
+  }
+
+  .btn-primary {
+    @apply btn bg-coral text-white shadow-lift
+           hover:bg-coral-soft hover:-translate-y-0.5;
+  }
+
+  .btn-secondary {
+    @apply btn bg-transparent border border-turquoise text-ink
+           hover:bg-turquoise;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent px-0 py-2 text-coral-deep
+           hover:text-ink;
+  }
+
+  /* На тёмной секции: коралл не контрастит, поэтому бирюза */
+  .btn-on-ink {
+    @apply btn bg-turquoise text-ink
+           hover:bg-mint-300;
+  }
+
+  .link-cta {
+    @apply inline-flex items-center gap-2 font-sans text-[12.5px]
+           uppercase tracking-[0.18em] text-coral-deep no-underline
+           transition-colors duration-300;
+  }
+
+  .link-cta .link-cta__arrow {
+    @apply transition-transform duration-500;
+  }
+
+  .group:hover .link-cta__arrow {
+    transform: translateX(6px);
+  }
+
+  /* ── Плашки и теги ──────────────────────────────────── */
+
+  .tag {
+    @apply inline-flex items-center px-3.5 py-1 rounded-pill
+           font-sans text-[11.5px] uppercase tracking-[0.12em];
+  }
+
+  .tag-solid {
+    @apply tag bg-turquoise text-ink;
+  }
+
+  .tag-outline {
+    @apply tag border border-white/50 text-white;
+  }
+
+  .tag-soft {
+    @apply tag bg-mint-100 text-ink;
+  }
+
+  .tag-hot {
+    @apply tag bg-sun text-ink font-medium;
+  }
+
+  /* ── Лейблы секций ──────────────────────────────────── */
+
+  .eyebrow {
+    @apply font-sans text-[12px] uppercase tracking-mega text-turquoise-700;
+  }
+
+  .eyebrow-on-ink {
+    @apply eyebrow text-mint-300;
+  }
+
+  /* ── Заголовки ──────────────────────────────────────── */
+
+  .h-display {
+    @apply font-serif font-medium leading-none tracking-[0.005em] text-balance;
+  }
+
+  .h-section {
+    @apply font-serif font-medium leading-[1.1] tracking-[0.005em] text-balance;
+  }
+
+  .lead {
+    @apply font-serif font-medium leading-[1.34] text-balance;
+  }
+
+  /* ── Карточки ───────────────────────────────────────── */
+
+  .card {
+    @apply bg-white rounded-card shadow-zen overflow-hidden
+           transition-shadow duration-500;
+  }
+
+  .card:hover {
+    @apply shadow-zen-lg;
+  }
+
+  .card-media {
+    @apply w-full h-full object-cover
+           transition-transform duration-[1300ms] ease-[cubic-bezier(.2,.7,.2,1)];
+  }
+
+  .group:hover .card-media {
+    transform: scale(1.05);
+  }
+
+  /* ── Формы ──────────────────────────────────────────── */
+
+  .field-label {
+    @apply block font-sans text-[11.5px] uppercase tracking-[0.14em]
+           text-ink-60 mb-2;
+  }
+
+  .field-input {
+    @apply w-full bg-white border border-mint-line rounded-soft px-4 py-3
+           font-sans text-[15px] font-light text-ink
+           placeholder:text-ink-60/70 outline-none
+           focus:border-turquoise focus:ring-4 focus:ring-turquoise/20
+           transition-colors duration-200;
+  }
+
+  .field-textarea {
+    @apply field-input resize-none;
+  }
+
+  /* ── Скроллбар-чипы ─────────────────────────────────── */
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ── Зерно поверх тёмных фото ───────────────────────── */
+
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+
+  /* Двойной скрим: без него белый текст на яркой бирюзе нечитаем */
+  .scrim-hero {
+    background:
+      linear-gradient(180deg,
+        rgba(6, 61, 58, 0.78) 0%,
+        rgba(6, 61, 58, 0.30) 34%,
+        rgba(6, 61, 58, 0.10) 62%),
+      linear-gradient(0deg,
+        rgba(6, 61, 58, 0.55) 0%,
+        rgba(0, 194, 176, 0.10) 45%,
+        rgba(0, 194, 176, 0) 100%);
+  }
+
+  .scrim-bottom {
+    background: linear-gradient(0deg,
+        rgba(6, 61, 58, 0.80) 0%,
+        rgba(6, 61, 58, 0.35) 45%,
+        rgba(6, 61, 58, 0) 100%);
+  }
+
+  /* Появление секций при прокрутке */
+  .reveal {
+    opacity: 0;
+    transform: translateY(34px);
+    transition: opacity 1.1s cubic-bezier(0.2, 0.7, 0.2, 1),
+                transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}
+
+/* Бегущая строка с направлениями */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes arrow {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(10px); }
+}
+
+.animate-arrow {
+  animation: arrow 2.6s ease-in-out infinite;
+}
+
+/* ── Уважаем системную настройку ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .marquee-track {
+    animation: none;
+  }
+}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Поиск</p>
+    <h1>{% if q %}<em>{{ q }}</em>{% else %}Найти <em>направление</em>{% endif %}</h1>
+
+    <form class="filters" method="get" action="/search/" style="margin-top:24px">
+      <div class="filters-in" style="padding:0">
+        <input class="search-input" type="search" name="q" value="{{ q }}"
+               placeholder="название, расстояние, метка" aria-label="Поиск по сайту">
+        <button class="btn btn-turquoise btn-sm" type="submit">Найти</button>
+      </div>
+    </form>
+  </div>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap" style="padding-bottom:clamp(60px,9vh,110px)">
+      <div class="dir-grid" data-catalog>
+        {% for dest in results %}
+        <a class="dir-card" href="{% pageurl dest %}">
+          <div class="ph">
+            {% if dest.cover %}
+              {% image dest.cover fill-900x675 format-webp as s_img %}
+              <img src="{{ s_img.url }}" alt="{{ dest.subtitle }}" loading="lazy">
+            {% endif %}
+            <span class="plate">{{ dest.ew_type_label }}</span>
+          </div>
+          <div class="body">
+            {% if dest.price_from %}<span class="price-tag">от {{ dest.price_from }} ₽</span>{% endif %}
+            <h3>{{ dest.title }}</h3>
+            {% if dest.subtitle %}<p class="tag clamp2">{{ dest.subtitle }}</p>{% endif %}
+          </div>
+        </a>
+        {% empty %}
+          <p class="section-sub">Ничего не нашлось. Попробуйте другое слово или посмотрите все направления.</p>
+        {% endfor %}
+      </div>
+
+      {% slugurl 'catalog' as catalog_url %}
+      <p style="margin-top:32px"><a class="btn btn-ghost" href="{{ catalog_url|default:'/catalog/' }}">Все направления →</a></p>
+    </div>
+  </section>
+</main>
+{% endblock %}

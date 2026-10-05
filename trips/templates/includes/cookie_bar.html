@@ -1,0 +1,23 @@
+{% load wagtailcore_tags %}
+{% slugurl 'policy' as policy_url %}
+{% if not request.COOKIES.nw_cookie %}
+<div class="cookie-bar" id="cookieBar" role="dialog" aria-label="Использование cookie">
+  <p>Сайт работает на <a href="{{ policy_url|default:'/policy/' }}">cookie и политике обработки персональных данных</a>.
+     Продолжая пользоваться сайтом, вы соглашаетесь с условиями.</p>
+  <a class="btn btn-turquoise btn-sm" id="cookieOk"
+     href="{% url 'cookie_accept' %}?next={{ request.path|urlencode }}">Принять</a>
+</div>
+{% endif %}
+
+{% if TELEGRAM_URL or WHATSAPP_URL or MAX_URL %}
+<div class="mw-panel" id="mwPanel" role="dialog" aria-label="Написать в мессенджер">
+  <span class="mw-label">Написать<br>нам</span>
+  {% if TELEGRAM_URL %}<a class="mw-btn mw-tg" href="{{ TELEGRAM_URL }}" aria-label="Telegram">{% include "includes/svg_tg.html" %}</a>{% endif %}
+  {% if WHATSAPP_URL %}<a class="mw-btn mw-wa" href="{{ WHATSAPP_URL }}" aria-label="WhatsApp">{% include "includes/svg_wa.html" %}</a>{% endif %}
+  {% if MAX_URL %}<a class="mw-btn mw-max" href="{{ MAX_URL }}" aria-label="MAX">{% include "includes/svg_max.html" %}</a>{% endif %}
+  <button class="mw-close" id="mwClose" type="button" aria-label="Закрыть">×</button>
+</div>
+<button class="mw-fab" id="mwFab" type="button" aria-label="Открыть окно мессенджеров">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3C7 3 3 6.6 3 11c0 2.2 1 4.2 2.7 5.6L5 21l4-2.2c.9.3 2 .4 3 .4 5 0 9-3.6 9-8s-4-8-9-8Z"/></svg>
+</button>
+{% endif %}

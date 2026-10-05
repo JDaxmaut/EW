@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags ruplural %}
+
+{% comment %}
+Главная повторяет композицию макета EWsite: фото-герой, карусель выездов,
+полоса направлений, стена фотографий, FAQ с мессенджерами.
+{% endcomment %}
+
+{% block content %}
+<main>
+
+  {# ── ЭКРАН 1 · ФОТО-ГЕРОЙ ────────────────────────────────────── #}
+  <section class="hero-photo" style="background-image:url('{% static "img/ew/hero-stock.webp" %}')">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">{{ SITE_REGION }} · выезды каждые выходные</p>
+        <h1>Нескучные<br><em>выходные</em></h1>
+        <p class="hero-sub">Собираем группу и едем на море. Пляж, горы, микропляжи — на один
+          день или с ночёвкой. Выходим в 6 утра, возвращаемся к девяти вечера.</p>
+        <div class="hero-actions">
+          {% slugurl 'catalog' as catalog_url %}
+          <a class="btn btn-turquoise" href="{{ catalog_url|default:'/catalog/' }}">Смотреть направления</a>
+          <a class="btn btn-ghost" href="{% url 'schedule' %}">Расписание заездов</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ── ЭКРАН 2 · КАРУСЕЛЬ ВЫЕЗДОВ ───────────────────────────────── #}
+  <section class="section on-dark" id="trips">
+    <div class="section-bg" style="background-image:url('{% static "img/ew/texture-water.webp" %}')" aria-hidden="true"></div>
+    <div class="wrap section-head">
+      <div>
+        <h2>Ближайшие <em>выезды</em></h2>
+        <p class="section-sub">Цены и свободные места — на текущую дату. Обновляем каждое утро.</p>
+      </div>
+    </div>
+
+    <div class="wrap carousel-zone">
+      <div class="trip-scroller" tabindex="0" aria-label="Карусель ближайших выездов">
+        {% for dep in nearest_departures %}
+        <article class="trip-card">
+          <div class="trip-photo">
+            {% if dep.destination.cover %}
+              {% image dep.destination.cover fill-720x900 format-webp as trip_img %}
+              <img src="{{ trip_img.url }}" alt="{{ dep.destination.title }}" loading="lazy">
+            {% endif %}
+          </div>
+          <div class="trip-body">
+            <p class="trip-date"><small>{{ dep.weekday_label }} · {{ dep.destination.get_kind_display }}</small>{{ dep.date_label }}</p>
+            <p class="trip-dir"><b>{{ dep.destination.title }}</b>. {{ dep.destination.subtitle|default:"выезд" }}.</p>
+            <div class="trip-meta">
+              <span class="plate {% if dep.seats_left == 0 %}plate-coral{% elif dep.seats_left <= 5 %}plate-sun{% else %}plate-turquoise{% endif %}">свободно {{ dep.seats_left }} из {{ dep.seats_total }}</span>
+              <span class="trip-price">{{ dep.price|price }} ₽<span>за место</span></span>
+              <a class="btn btn-turquoise btn-sm" href="{% pageurl dep.destination %}#booking" style="margin-left:auto">Записаться</a>
+            </div>
+          </div>
+        </article>
+        {% empty %}
+        <article class="trip-card"><div class="trip-body"><p class="trip-dir">Расписание выездов скоро появится.</p></div></article>
+        {% endfor %}
+      </div>
+      <div class="carousel-nav">
+        <button class="car-arrow" data-car="prev" aria-label="Предыдущий выезд"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button class="car-arrow" data-car="next" aria-label="Следующий выезд"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        <div class="car-dots" role="group" aria-label="Прогресс карусели"></div>
+        <span class="car-counter">1 из {{ nearest_departures|length }}</span>
+      </div>
+    </div>
+  </section>
+
+  {# ── ПОЛОСА НАПРАВЛЕНИЙ ──────────────────────────────────────── #}
+  <section class="dirs-strip-section">
+    <div class="wrap dirs-strip">
+      <span class="micro" style="color:var(--ink-40)">Направления</span>
+      {% for d in footer_destinations %}
+        <a class="chip" href="{% pageurl d %}">{{ d.title }}{% if d.is_stub %} · скоро{% endif %}</a>
+      {% endfor %}
+      {% slugurl 'catalog' as catalog_url %}
+      <a class="btn btn-ghost btn-sm" href="{{ catalog_url|default:'/catalog/' }}" style="margin-left:auto">Каталог с фильтрами →</a>
+    </div>
+  </section>
+
+  {# ── СТЕНА ФОТОГРАФИЙ ────────────────────────────────────────── #}
+  <section class="section" id="wall">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Мы там были</p>
+          <h2>Вот как это <em>выглядит</em></h2>
+          <p class="section-sub">Фотографии с наших выездов, без стоковых картинок. Наведите на кадр — подскажем, где это.</p>
+        </div>
+      </div>
+      <div class="wall">
+        <figure class="wall-item w-c3"><img src="{% static 'img/ew/wall/01.webp' %}" alt="Ханская · бухта между скалами" loading="lazy"><figcaption class="wall-cap">Ханская · бухта между скалами</figcaption></figure>
+        <figure class="wall-item w-t2"><img src="{% static 'img/ew/wall/02.webp' %}" alt="Сосновый бор по пути к дюнам" loading="lazy"><figcaption class="wall-cap">Сосновый бор по пути к дюнам</figcaption></figure>
+        <figure class="wall-item w-c2"><img src="{% static 'img/ew/wall/03.webp' %}" alt="Майкоп · плато на рассвете" loading="lazy"><figcaption class="wall-cap">Майкоп · плато на рассвете</figcaption></figure>
+        <figure class="wall-item w-c2"><img src="{% static 'img/ew/wall/04.webp' %}" alt="Вид с дрона · коса и вода" loading="lazy"><figcaption class="wall-cap">Вид с дрона · коса и вода</figcaption></figure>
+        <figure class="wall-item w-c2"><img src="{% static 'img/ew/wall/05.webp' %}" alt="Дондуковская · пустой берег" loading="lazy"><figcaption class="wall-cap">Дондуковская · пустой берег</figcaption></figure>
+        <figure class="wall-item w-c2"><img src="{% static 'img/ew/wall/06.webp' %}" alt="Волна на камнях Ханской" loading="lazy"><figcaption class="wall-cap">Волна на камнях Ханской</figcaption></figure>
+        <figure class="wall-item w-c3"><img src="{% static 'img/ew/wall/07.webp' %}" alt="Рассвет в лагере Дондуковской" loading="lazy"><figcaption class="wall-cap">Рассвет в лагере Дондуковской</figcaption></figure>
+        <figure class="wall-item w-c2"><img src="{% static 'img/ew/wall/08.webp' %}" alt="Белореченск · ущелье" loading="lazy"><figcaption class="wall-cap">Белореченск · ущелье</figcaption></figure>
+        <figure class="wall-item w-c2"><img src="{% static 'img/ew/wall/09.webp' %}" alt="Дорога на плато" loading="lazy"><figcaption class="wall-cap">Дорога на плато</figcaption></figure>
+        <figure class="wall-item w-c2"><img src="{% static 'img/ew/wall/10.webp' %}" alt="Лабинск · набережная" loading="lazy"><figcaption class="wall-cap">Лабинск · набережная</figcaption></figure>
+        <figure class="wall-item w-c2"><img src="{% static 'img/ew/wall/11.webp' %}" alt="Гиагинская · мелководье" loading="lazy"><figcaption class="wall-cap">Гиагинская · мелководье</figcaption></figure>
+        <figure class="wall-item w-c2"><img src="{% static 'img/ew/wall/12.webp' %}" alt="Курганинск · вечернее зеркало" loading="lazy"><figcaption class="wall-cap">Курганинск · вечернее зеркало</figcaption></figure>
+        <figure class="wall-item w-c2"><img src="{% static 'img/ew/wall/13.webp' %}" alt="Краснодар · огни набережной" loading="lazy"><figcaption class="wall-cap">Краснодар · огни набережной</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  {# ── FAQ + МЕССЕНДЖЕРЫ ───────────────────────────────────────── #}
+  <section class="section" id="booking" style="background:var(--mint-100)">
+    <div class="wrap faq-grid">
+      <div>
+        <p class="eyebrow">Частые вопросы</p>
+        <h2 style="margin-bottom:28px">Спросить <em>до поездки</em></h2>
+        <div class="acc" data-acc>
+          <div class="acc-item">
+            <button class="acc-btn" aria-expanded="false">Стоит ли ехать без опыта?<span class="ico" aria-hidden="true">+</span></button>
+            <div class="acc-panel"><div class="acc-panel-in"><p>Да. Восемь из десяти гостей первый раз едут именно к нам и без подготовки. Маршруты построены так, что нагрузка растёт постепенно, а гид идёт темпом самого спокойного участника.</p></div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-btn" aria-expanded="false">Можно ли с детьми?<span class="ico" aria-hidden="true">+</span></button>
+            <div class="acc-panel"><div class="acc-panel-in"><p>На Гиагинскую и в Лабинск — с любого возраста: мелководье и цивилизация рядом. На Ханскую и в ущелья берём с 8 лет, на плато Майкопа — с 12.</p></div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-btn" aria-expanded="false">Что взять с собой?<span class="ico" aria-hidden="true">+</span></button>
+            <div class="acc-panel"><div class="acc-panel-in"><p>База: купальник, полотенце, вода 1,5 литра, кепка, солнцезащита и обувь, которую не жалко. Полный список под направление — на его странице, раздел «Что взять».</p></div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-btn" aria-expanded="false">Можно ли отменить запись?<span class="ico" aria-hidden="true">+</span></button>
+            <div class="acc-panel"><div class="acc-panel-in"><p>До 48 часов до выезда возвращаем предоплату полностью или переносим на любую дату. Позже — переносим депозитом: место в автобусе мы уже держали под вас.</p></div></div>
+          </div>
+        </div>
+      </div>
+      {% include "includes/messengers_card.html" %}
+    </div>
+  </section>
+</main>
+{% endblock %}

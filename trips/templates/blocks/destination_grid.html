@@ -1,0 +1,45 @@
+{% load wagtailcore_tags wagtailimages_tags humanize ruplural %}
+<section class="bg-mint-wash py-[clamp(64px,11vh,130px)] px-[clamp(20px,6vw,96px)]">
+  <div class="max-w-[1240px] mx-auto">
+
+    <div class="max-w-[620px] mb-[clamp(36px,5vw,60px)]">
+      <div class="eyebrow mb-4">Направления</div>
+      <h2 class="h-section text-ink text-[clamp(30px,4.4vw,58px)]">{{ value.heading }}</h2>
+      {% if value.subheading %}
+        <p class="mt-5 text-[clamp(15px,1.4vw,17px)] leading-relaxed text-ink-80">{{ value.subheading }}</p>
+      {% endif %}
+    </div>
+
+    {# bento: одна крупная плитка, две узкие, потом равные — сетка намеренно неровная #}
+    {% with total=featured_destinations|length %}
+    <div class="grid gap-4 sm:gap-5
+                grid-cols-1 sm:grid-cols-2 lg:grid-cols-4
+                auto-rows-[minmax(200px,auto)]">
+
+      {% for d in featured_destinations %}
+        {% if forloop.counter0 == 0 %}
+          <div class="sm:col-span-2 lg:col-span-2 lg:row-span-2">
+            {% include "includes/destination_tile.html" with dest=d size="big" %}
+          </div>
+        {% elif forloop.counter0 < 3 %}
+          <div class="lg:row-span-2">
+            {% include "includes/destination_tile.html" with dest=d size="tall" %}
+          </div>
+        {% else %}
+          {% include "includes/destination_tile.html" with dest=d size="small" %}
+        {% endif %}
+      {% empty %}
+        <p class="text-ink-60 col-span-full">Направления скоро появятся.</p>
+      {% endfor %}
+    </div>
+    {% endwith %}
+
+    {% slugurl 'catalog' as catalog_url %}
+    {% if catalog_url %}
+      <div class="mt-[clamp(32px,5vw,56px)] text-center">
+        <a href="{{ catalog_url }}" class="btn-primary">Все направления</a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>

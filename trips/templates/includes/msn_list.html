@@ -1,0 +1,11 @@
+<div class="msn-list">
+  {% if TELEGRAM_URL %}
+    <a class="msn-btn msn-tg" href="{{ TELEGRAM_URL }}">{% include "includes/svg_tg.html" %} Telegram</a>
+  {% endif %}
+  {% if WHATSAPP_URL %}
+    <a class="msn-btn msn-wa" href="{{ WHATSAPP_URL }}">{% include "includes/svg_wa.html" %} WhatsApp</a>
+  {% endif %}
+  {% if MAX_URL %}
+    <a class="msn-btn msn-max" href="{{ MAX_URL }}">{% include "includes/svg_max.html" %} MAX</a>
+  {% endif %}
+</div>

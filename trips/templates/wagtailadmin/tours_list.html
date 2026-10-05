@@ -1,0 +1,140 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailimages_tags %}
+
+{% block titletag %}Мои туры{% endblock %}
+
+{% block content %}
+<style>
+.tl-wrap { padding: 32px 40px; max-width: 1200px; }
+.tl-head  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+@media (max-width: 700px) {
+  .tl-wrap { padding: 16px; }
+  .tl-head { flex-direction: column; align-items: flex-start; }
+}
+</style>
+<div class="tl-wrap">
+
+  <div class="tl-head">
+    <h1 style="margin:0;font-size:22px;font-weight:500;color:#ddd8cc;">Мои туры</h1>
+    {% if catalog_id %}
+    <a href="/tochka-cms/pages/add/tours/tourpage/{{ catalog_id }}/"
+       style="display:inline-flex;align-items:center;gap:8px;background:#C86B49;color:#F4F1EA;
+              text-decoration:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 1v11M1 6.5h11"/></svg>
+      Добавить тур
+    </a>
+    {% endif %}
+  </div>{# /.tl-head #}
+
+  {% if live_tours %}
+  <div style="margin-bottom:10px;">
+    <span style="color:rgba(221,216,204,0.45);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;">
+      Опубликованы · {{ live_tours|length }}
+    </span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:36px;">
+    {% for tour in live_tours %}
+    <div style="background:#242d24;border:1px solid rgba(255,255,255,0.07);border-radius:12px;overflow:hidden;">
+      <!-- Превью -->
+      <div style="height:160px;background:#1e2820;position:relative;overflow:hidden;">
+        {% if tour.hero_first_image %}
+          {% image tour.hero_first_image fill-560x320 format-webp as thumb %}
+          <img src="{{ thumb.url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+        {% else %}
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(221,216,204,0.2)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          </div>
+        {% endif %}
+        <div style="position:absolute;top:10px;right:10px;">
+          <span style="background:rgba(44,62,45,0.85);color:#8ec48e;font-size:10px;padding:3px 8px;border-radius:20px;letter-spacing:0.05em;backdrop-filter:blur(4px);">
+            Live
+          </span>
+        </div>
+      </div>
+      <!-- Инфо -->
+      <div style="padding:14px 16px;">
+        <div style="font-size:14px;font-weight:500;color:#ddd8cc;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          {{ tour.title }}
+        </div>
+        <div style="font-size:12px;color:rgba(221,216,204,0.45);margin-bottom:14px;">
+          {{ tour.location|default:"—" }}{% if tour.price_from %} · {{ tour.price_from }}{% endif %}
+        </div>
+        <div style="display:flex;gap:8px;">
+          <a href="/tochka-cms/pages/{{ tour.pk }}/edit/"
+             style="flex:1;text-align:center;background:rgba(255,255,255,0.07);color:#ddd8cc;
+                    text-decoration:none;padding:7px 0;border-radius:7px;font-size:12px;border:1px solid rgba(255,255,255,0.1);">
+            Редактировать
+          </a>
+          <a href="{{ tour.url }}" target="_blank"
+             style="display:inline-flex;align-items:center;justify-content:center;gap:5px;
+                    background:rgba(200,107,73,0.12);color:#C86B49;text-decoration:none;
+                    padding:7px 12px;border-radius:7px;font-size:12px;border:1px solid rgba(200,107,73,0.25);">
+            <svg width="11" height="11" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8M8 1h4m0 0v4m0-4L5.5 7.5"/>
+            </svg>
+            Открыть
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if draft_tours %}
+  <div style="margin-bottom:10px;">
+    <span style="color:rgba(221,216,204,0.45);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;">
+      Черновики · {{ draft_tours|length }}
+    </span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+    {% for tour in draft_tours %}
+    <div style="background:#242d24;border:1px solid rgba(255,150,50,0.15);border-radius:12px;overflow:hidden;opacity:0.8;">
+      <div style="height:160px;background:#1a2218;position:relative;overflow:hidden;">
+        {% if tour.hero_first_image %}
+          {% image tour.hero_first_image fill-560x320 format-webp as thumb %}
+          <img src="{{ thumb.url }}" alt="" style="width:100%;height:100%;object-fit:cover;filter:grayscale(0.4);">
+        {% else %}
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(221,216,204,0.15)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          </div>
+        {% endif %}
+        <div style="position:absolute;top:10px;right:10px;">
+          <span style="background:rgba(30,25,10,0.85);color:#e09030;font-size:10px;padding:3px 8px;border-radius:20px;letter-spacing:0.05em;backdrop-filter:blur(4px);">
+            Черновик
+          </span>
+        </div>
+      </div>
+      <div style="padding:14px 16px;">
+        <div style="font-size:14px;font-weight:500;color:#ddd8cc;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          {{ tour.title }}
+        </div>
+        <div style="font-size:12px;color:rgba(221,216,204,0.45);margin-bottom:14px;">
+          {{ tour.location|default:"Локация не указана" }}
+        </div>
+        <a href="/tochka-cms/pages/{{ tour.pk }}/edit/"
+           style="display:block;text-align:center;background:rgba(255,255,255,0.07);color:#ddd8cc;
+                  text-decoration:none;padding:7px 0;border-radius:7px;font-size:12px;border:1px solid rgba(255,255,255,0.1);">
+          Редактировать и опубликовать
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not live_tours and not draft_tours %}
+  <div style="text-align:center;padding:80px 0;color:rgba(221,216,204,0.3);">
+    <div style="font-size:40px;margin-bottom:16px;">✈</div>
+    <div style="font-size:15px;">Туров пока нет</div>
+    {% if catalog_id %}
+    <a href="/tochka-cms/pages/add/tours/tourpage/{{ catalog_id }}/"
+       style="display:inline-block;margin-top:20px;color:#C86B49;text-decoration:none;font-size:13px;">
+      Создать первый тур →
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

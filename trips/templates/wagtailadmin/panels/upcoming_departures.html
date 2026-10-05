@@ -1,0 +1,41 @@
+{% load wagtailcore_tags humanize %}
+<div class="w-panel__header"><h2>Ближайшие выезды</h2></div>
+<div class="w-panel__content">
+  <form method="post" action="{% url 'quick_save_departures' %}">
+    {% csrf_token %}
+    <table class="listing" style="box-shadow:none;border:none">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Направление</th>
+          <th style="width:110px">Цена, ₽</th>
+          <th style="width:110px">Мест</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dep in departures %}
+          <tr>
+            <td><strong>{{ dep.start_date|date:"d.m.Y" }}</strong>
+              <span style="color:var(--nw-text-3)">{{ dep.weekday_label }}</span></td>
+            <td><a href="{% pageurl dep.destination %}edit/">{{ dep.destination.title }}</a></td>
+            <td><input type="number" name="price_{{ dep.pk }}" value="{{ dep.price }}"
+                       min="1" style="width:100%"></td>
+            <td><input type="number" name="seats_{{ dep.pk }}" value="{{ dep.seats_left }}"
+                       min="0" max="{{ dep.seats_total }}" style="width:100%"></td>
+            <td>
+              {% if dep.status == "sold_out" %}<span class="pill pill-warning">Мест нет</span>
+              {% else %}<span class="pill pill-success">{{ dep.seats_left }} свободно</span>{% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" style="color:var(--nw-text-3)">Выездов пока нет.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+      <button type="submit" class="button">Сохранить цены и места</button>
+      <a class="button button-secondary" href="/cms/schedule/">Открыть всё расписание</a>
+    </div>
+  </form>
+</div>

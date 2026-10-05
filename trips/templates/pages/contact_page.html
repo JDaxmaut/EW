@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+<main>
+  <div class="wrap page-head">
+    <p class="eyebrow">Контакты</p>
+    <h1>Пишите, звоните, <em>приходите</em></h1>
+  </div>
+
+  <section class="section" style="padding-top:0" id="messengers">
+    <div class="wrap faq-grid">
+      <div>
+        <div class="list-plate">
+          <h3>Связаться</h3>
+          <ul>
+            {% if requisites.phone %}<li>Телефон: <a href="tel:{{ PHONE_HREF }}">{{ requisites.phone }}</a></li>{% elif page.phone %}<li>Телефон: <a href="tel:{{ PHONE_HREF }}">{{ page.phone }}</a></li>{% endif %}
+            {% if TELEGRAM_URL %}<li>Telegram: <a href="{{ TELEGRAM_URL }}">Написать в Telegram</a></li>{% endif %}
+            {% if WHATSAPP_URL %}<li>WhatsApp: <a href="{{ WHATSAPP_URL }}">Написать в WhatsApp</a></li>{% endif %}
+            {% if MAX_URL %}<li>MAX: <a href="{{ MAX_URL }}">Написать в MAX</a></li>{% endif %}
+            {% if requisites.email %}<li>Почта: <a href="mailto:{{ requisites.email }}">{{ requisites.email }}</a></li>{% elif page.email %}<li>Почта: <a href="mailto:{{ page.email }}">{{ page.email }}</a></li>{% endif %}
+            {% if page.work_hours %}<li>{{ page.work_hours }}</li>{% endif %}
+          </ul>
+        </div>
+
+        <div class="list-plate sun">
+          <h3>Офис</h3>
+          <ul>
+            {% if requisites.address %}<li>{{ requisites.address }}</li>{% elif page.address %}<li>{{ page.address }}</li>{% endif %}
+            <li>Приём по предварительной договорённости — напишите заранее, и мы назначим время</li>
+            <li>Кофе за счёт заведения, если приехали с моря</li>
+          </ul>
+        </div>
+
+        <div class="list-plate">
+          <h3>Реквизиты</h3>
+          <ul>
+            <li>{{ company_name }}</li>
+            <li>{{ company_inn }}</li>
+            <li>{{ BANK_DETAILS|safe }}</li>
+          </ul>
+        </div>
+
+        {% if page.body %}<div class="tour-text">{{ page.body|richtext }}</div>{% endif %}
+      </div>
+
+      <div>
+        {% include "includes/messengers_card.html" %}
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

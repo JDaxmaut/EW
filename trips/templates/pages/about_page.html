@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+<main>
+
+  <div class="wrap page-head">
+    <p class="eyebrow">О нас</p>
+    <h1>Мы возим друзей, <em>а не туристов</em></h1>
+  </div>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap dir-cols">
+      <div>
+        <p class="section-sub" style="margin-top:0">«Нескучные выходные» начались в 2019-м с одного микроавтобуса и идеи: зачем ждать отпуск, если море в трёх часах, а суббота уже через два дня? Первый выезд собрался из одиннадцати незнакомцев — вернулись компанией, которая переписывается до сих пор.</p>
+        <p class="section-sub">Сейчас у нас 8 направлений, четыре гида и принцип, который не менялся: мы не возим туда, где не были сами дважды. Один раз как гости, второй — как организаторы: с замером времени в пути, проверкой стоянок и честным ответом на вопрос «а стоит ли сюда ехать в ноябре».</p>
+        <p class="section-sub">Мы не турфирма в классическом смысле: без офисов-витрин, аниматоров и «программы мероприятия». Есть автобус, знающий дорогу человек, хорошая компания и место, где хочется молчать и смотреть на воду.</p>
+
+        {% if page.body %}<div class="tour-text" style="margin-top:22px">{{ page.body|richtext }}</div>{% endif %}
+      </div>
+      <aside>
+        <div class="team-ph">
+          <div>
+            <p class="display">Команда — четыре гида<br>и один очень надёжный автобус</p>
+            <p style="margin:10px 0 0;font-weight:700">Реальные фото команды появятся после ближайшего выезда</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section on-dark">
+    <div class="section-bg" style="background-image:url('{% static 'img/ew/texture-water.webp' %}')" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="stats">
+        {% for block in page.figures %}
+          {% if block.block_type == "figure" %}
+          <div class="stat"><p class="n">{{ block.value.value }}</p><p>{{ block.value.label }}</p></div>
+          {% endif %}
+        {% empty %}
+        <div class="stat"><p class="n">7 <em>лет</em></p><p>возим людей по краю каждые выходные</p></div>
+        <div class="stat"><p class="n">1 240</p><p>гостей съездили с нами хотя бы раз</p></div>
+        <div class="stat"><p class="n">10</p><p>направлений в сезоне; из них 2 в подготовке</p></div>
+        <div class="stat"><p class="n">40 <em>max</em></p><p>человек в группе — и то только на пляжных</p></div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><div><p class="eyebrow">Принципы</p><h2>Три правила, <em>которые не гнутся</em></h2></div></div>
+      <div class="principles">
+        <div class="principle reveal"><h3>Дата и цена сразу</h3><p>Никаких «уточняйте у менеджера». Расписание, цена и свободные места видны до клика — мы сами не любим догадываться.</p></div>
+        <div class="principle reveal"><h3>Фотография честная</h3><p>Показываем место таким, какое оно в субботу утром: без стоковых улыбок и фильтров «райский уголок». Не нравится кадр — не понравится и вживую, и наоборот.</p></div>
+        <div class="principle reveal"><h3>Группа, а не толпа</h3><p>До 18 человек на диких маршрутах и до 40 на пляжных. Иначе гид превращается в пастуха, а бухта — в вокзал.</p></div>
+      </div>
+    </div>
+  </section>
+
+  {% if page.details %}
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="list-plate">
+        <h3>Реквизиты и условия</h3>
+        <div class="tour-text">{{ page.details|richtext }}</div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+</main>
+{% endblock %}

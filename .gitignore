@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+env/
+venv/
+.venv/
+.Python
+
+# Django
+staticfiles/
+*.log
+
+# Секреты и локальные данные — никогда в репозиторий
+.env
+*.sqlite3
+db.sqlite3
+/media/
+
+# Node / Tailwind
+node_modules/
+theme/static_src/node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Design tool exports
+*.dc.html
+.thumbnail
+scraps/
+
+# Original HTML prototypes (reference only)
+wagtail/
+
+# Design tool scripts (root level only)
+/image-slot.js
+/support.js
+uploads/
+
+# Migrations (раскомментировать если не хочешь коммитить миграции)
+# tours/migrations/

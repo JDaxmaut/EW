@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "taggit",
     "tailwind",
     "theme",
+    "admin_ui",
     # Django
     "django.contrib.admin",
     "django.contrib.auth",

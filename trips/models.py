@@ -10,7 +10,7 @@ from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 from taggit.models import TaggedItemBase
 from wagtail import hooks
-from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
+from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel, TabbedInterface
 from wagtail.admin.viewsets.model import ModelViewSet
 from wagtail.blocks import CharBlock, ListBlock
 from wagtail.images.blocks import ImageChooserBlock
@@ -18,6 +18,8 @@ from wagtail.fields import RichTextField, StreamField
 from wagtail.images import get_image_model_string
 from wagtail.models import Page
 from wagtail.search import index
+
+from admin_ui.panels import DESTINATION_TABS, LEGAL_TABS
 
 from . import blocks as tb
 
@@ -813,82 +815,10 @@ def block_incomplete_destination(page, request, *args, **kwargs):
 
 
 # ───────────────────────────── Панели страниц ─────────────────────────────
+# Вкладки с русскими подсказками живут в admin_ui/panels.py.
+Destination.edit_handler = TabbedInterface(DESTINATION_TABS)
+LegalPage.edit_handler = TabbedInterface(LEGAL_TABS)
 
-Destination.content_panels = [
-    MultiFieldPanel(
-        [
-            FieldPanel("eyebrow"),
-            FieldPanel("title"),
-            FieldPanel("subtitle"),
-            FieldPanel("kind"),
-            FieldPanel("format"),
-        ],
-        heading=_("Название"),
-    ),
-    MultiFieldPanel(
-        [
-            FieldPanel("cover"),
-            FieldPanel("price_from"),
-            FieldPanel("duration"),
-            FieldPanel("distance"),
-            FieldPanel("travel_time"),
-            FieldPanel("parking"),
-        ],
-        heading=_("Карточка в каталоге"),
-    ),
-    MultiFieldPanel(
-        [
-            FieldPanel("summary"),
-            FieldPanel("description"),
-            FieldPanel("highlights"),
-        ],
-        heading=_("Описание"),
-    ),
-    MultiFieldPanel(
-        [
-            FieldPanel("included"),
-            FieldPanel("excluded"),
-            FieldPanel("packing"),
-            FieldPanel("faq"),
-        ],
-        heading=_("Что входит и что взять"),
-    ),
-    MultiFieldPanel(
-        [
-            FieldPanel("timeline"),
-        ],
-        heading=_("Линия времени: программа по часам"),
-    ),
-    MultiFieldPanel(
-        [
-            FieldPanel("programme"),
-            FieldPanel("stay"),
-        ],
-        heading=_("Поездки с ночёвкой"),
-    ),
-    MultiFieldPanel(
-        [
-            FieldPanel("gallery_hero"),
-            FieldPanel("gallery"),
-        ],
-        heading=_("Фотографии"),
-    ),
-    MultiFieldPanel(
-        [
-            FieldPanel("search_description"),
-            FieldPanel("tags"),
-        ],
-        heading=_("Поиск и метки"),
-    ),
-    InlinePanel("departures", label=_("Выезды"), heading=_("Расписание выездов")),
-]
-
-Destination.settings_panels = [
-    MultiFieldPanel(
-        [FieldPanel("slug"), FieldPanel("owner")],
-        heading=_("Адрес страницы"),
-    )
-]
 
 HomePage.content_panels = [
     MultiFieldPanel(
@@ -940,14 +870,6 @@ InfoPage.content_panels = [
     FieldPanel("body"),
     FieldPanel("meeting_points"),
     FieldPanel("notes"),
-]
-
-LegalPage.content_panels = [
-    MultiFieldPanel(
-        [FieldPanel("intro"), FieldPanel("updated")],
-        heading="Шапка",
-    ),
-    FieldPanel("body"),
 ]
 
 ContactSubmission.panels = [

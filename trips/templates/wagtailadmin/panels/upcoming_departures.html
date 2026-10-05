@@ -24,8 +24,9 @@
             <td><input type="number" name="seats_{{ dep.pk }}" value="{{ dep.seats_left }}"
                        min="0" max="{{ dep.seats_total }}" style="width:100%"></td>
             <td>
-              {% if dep.status == "sold_out" %}<span class="pill pill-warning">Мест нет</span>
-              {% else %}<span class="pill pill-success">{{ dep.seats_left }} свободно</span>{% endif %}
+              {% if dep.seats_left == 0 %}<span class="nu-chip bad">мест нет · лист ожидания</span>
+              {% elif dep.seats_left <= 3 %}<span class="nu-chip warn">осталось {{ dep.seats_left }} из {{ dep.seats_total }}</span>
+              {% else %}<span class="nu-chip ok">свободно {{ dep.seats_left }} из {{ dep.seats_total }}</span>{% endif %}
             </td>
           </tr>
         {% empty %}

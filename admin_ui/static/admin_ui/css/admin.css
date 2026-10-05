@@ -1,0 +1,92 @@
+/* ============================================================
+   Тема админки «Нескучные выходные» (Wagtail 7.x)
+   Принцип: брендовая бирюза — акцент, бумага — фон, всё крупное
+   и по-русски. Селекторы могут плыть между версиями Wagtail —
+   правьте здесь, переменные сверху.
+   ============================================================ */
+:root {
+  --w-color-primary: #00c2b0;
+  --w-color-primary-dark: #00968a;
+  --w-color-secondary: #0d211d;
+  --nu-paper: #f6f5f1;
+  --nu-mint: #e3f6f2;
+  --nu-ink: #0d211d;
+  --nu-ink-60: rgba(13, 33, 29, .64);
+  --nu-coral: #c93a28;
+  --nu-sun: #ffc94a;
+  --nu-radius: 14px;
+}
+
+/* фон и базовая типографика: крупнее, спокойнее */
+body, .wrapper { background: var(--nu-paper); }
+body { font-size: 15px; }
+h1, h2, .w-headerable-element__title, .title-text-box { font-family: Georgia, "Times New Roman", serif; }
+.content-wrapper .content-title h1 { font-size: 2rem; }
+
+/* сайдбар: тёмный чернильный, активный пункт — бирюза */
+.sidebar, .sidebar-loading { background: var(--nu-ink); }
+.sidebar .sidebar__tab, .sidebar-menu-item a, .sidebar-menu-item .sidebar-menu-item__link {
+  color: rgba(207, 233, 227, .85); font-weight: 700;
+}
+.sidebar-menu-item a:hover, .sidebar-menu-item--active a,
+.sidebar-menu-item .sidebar-menu-item__link:hover, .sidebar-menu-item--active .sidebar-menu-item__link {
+  background: var(--w-color-primary); color: var(--nu-ink);
+}
+.sidebar-menu-item--active a::after { display: none; }
+
+/* кнопки: основная — бирюза, деструктивная — коралл */
+.button, .button.bicolor, input[type="submit"].button {
+  background: var(--w-color-primary); color: var(--nu-ink);
+  border-radius: 999px; font-weight: 800; border: 0;
+}
+.button:hover, .button.bicolor:hover { background: #6fe3d6; color: var(--nu-ink); }
+.button.secondary, .button.button-secondary { background: transparent; color: var(--nu-ink); box-shadow: inset 0 0 0 1.5px rgba(13,33,29,.28); }
+.button.no, .button.button-no, .button.serious { background: transparent; color: var(--nu-coral); box-shadow: inset 0 0 0 1.5px rgba(201,58,40,.55); }
+.button.no:hover { background: var(--nu-coral); color: #fff; }
+
+/* вкладки редактора: пилюли, активная — чернильная */
+.w-tabs__tab { border-radius: 999px !important; padding: 8px 18px; font-weight: 800; color: var(--nu-ink-60); }
+.w-tabs__tab[aria-selected="true"], .w-tabs__tab:hover { background: var(--nu-ink); color: #fff; }
+.w-tabs__list { gap: 8px; border-bottom: 1px solid rgba(13,33,29,.1); }
+
+/* карточки полей: белые, скруглённые, с воздухом */
+.w-panel, .object-layout .w-panel__content, fieldset, .w-field__wrapper { background: transparent; }
+.w-panel__heading, .w-panel--outlined .w-panel__header { font-weight: 800; }
+.w-panel--outlined, .object-layout .w-panel--outlined {
+  border: 0 !important; background: #fff; border-radius: var(--nu-radius);
+  box-shadow: 0 14px 34px -18px rgba(13,33,29,.28); padding: 6px 8px; margin-bottom: 16px;
+}
+
+/* подсказки под полями */
+.w-help-text, .field-help-text, [data-controller="w-help"] .w-help { color: var(--nu-ink-60); font-size: 13px; }
+.w-field__help-text, .help { color: #00776d; }
+
+/* HelpPanel с инструкцией — видно, что это подсказка редактору */
+.w-panel--help, .messages .help { border-radius: var(--nu-radius); }
+
+/* StreamField: блоки как карточки с пунктиром */
+.w-streamfield__block, .sequence-member {
+  border: 1.5px dashed rgba(13,33,29,.22) !important; border-radius: 12px; background: var(--nu-paper);
+}
+.w-streamfield__add-button .button, .c-sf-add-button { border-radius: 12px; font-weight: 800; }
+
+/* Светофор мест на панели «Ближайшие выезды»:
+   зелёный — мест достаточно, жёлтый — до трёх, красный — лист ожидания. */
+.nu-chip { display: inline-block; border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 800; white-space: nowrap; }
+.nu-chip.ok { background: var(--nu-mint); color: #00776d; }
+.nu-chip.warn { background: #fdf3e0; color: #8a6100; }
+.nu-chip.bad { background: #f7e6e2; color: var(--nu-coral); }
+
+/* фокус и доступность: толстое бирюзовое кольцо */
+:focus-visible, .w-field input:focus, .w-field textarea:focus, .w-field select:focus {
+  outline: 3px solid var(--w-color-primary) !important; outline-offset: 2px; border-radius: 8px;
+}
+
+/* шапка: хлебные крошки заметнее */
+.header-title, .w-breadcrumbs { font-size: 14px; }
+.w-breadcrumbs__link { color: #00776d; font-weight: 700; }
+
+/* таблицы списков: зебра и крупные строки */
+.listing tbody tr { border-top: 1px solid rgba(13,33,29,.07); }
+.listing tbody tr:nth-child(even) { background: rgba(227,246,242,.4); }
+.listing td, .listing th { padding: 14px 16px; }

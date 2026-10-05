@@ -34,6 +34,40 @@ class DayBlock(blocks.StructBlock):
         )
 
 
+class TimelineStepBlock(blocks.StructBlock):
+    """Шаг линии времени: время, что происходит, подробности."""
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            [
+                ("time", CharBlock(
+                    label="Время",
+                    max_length=20,
+                    required=False,
+                    help_text="Например: «6:00» или «19:30». Можно оставить пустым.",
+                )),
+                ("title", CharBlock(
+                    label="Что происходит",
+                    max_length=160,
+                    help_text="Например: «Сбор и отправление».",
+                )),
+                ("text", RichTextBlock(
+                    label="Подробности",
+                    features=["bold", "italic", "link"],
+                )),
+                ("image", ImageChooserBlock(
+                    label="Фото шага",
+                    required=False,
+                    help_text="Необязательно. Обычно хватает фото в галерее.",
+                )),
+            ],
+            label="Шаг линии времени",
+            icon="time",
+            template="blocks/timeline_step_block.html",
+            **kwargs,
+        )
+
+
 class StayBlock(blocks.StructBlock):
     def __init__(self, **kwargs):
         super().__init__(

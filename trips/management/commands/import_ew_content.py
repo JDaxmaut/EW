@@ -124,19 +124,18 @@ class Command(BaseCommand):
         """Список строк → формат StreamField с одним ListBlock."""
         return [("items", [{"value": str(i)} for i in (items or [])])]
 
-    def program_blocks(self, steps, day_imgs=None):
-        from trips.blocks import DayBlock
-
+    def timeline_steps(self, steps, day_imgs=None):
+        """Почасовая программа EW -> блоки линии времени."""
         day_imgs = day_imgs or {}
         blocks = []
         for index, (time, title, text) in enumerate(steps or [], start=1):
             if time == "-":
                 continue
             blocks.append((
-                "day",
+                "step",
                 {
-                    "day_number": index,
-                    "title": f"{time} — {title}" if time else title,
+                    "time": time or "",
+                    "title": title,
                     "text": f"<p>{text}</p>",
                     "image": self.ew_image(day_imgs[index]) if day_imgs.get(index) else None,
                 },
@@ -227,6 +226,11 @@ class Command(BaseCommand):
             page.kind = KIND_BY_TYPE.get(item.get("type"), Destination.Kind.BEACH)
             page.ew_type = item.get("type", "beach")
             page.ew_duration = item.get("duration", "day")
+            page.format = (
+                Destination.Format.OVERNIGHT
+                if item.get("duration") == "night"
+                else Destination.Format.ONE_DAY
+            )
             page.ew_days = ", ".join(item.get("days") or [])
             page.distance_km = item.get("km") or None
             page.eyebrow = f"{SITE_REGION_SHORT} · {'выезды: ' + ', '.join(item.get('days', []))}"
@@ -246,7 +250,9 @@ class Command(BaseCommand):
             page.included = self.bullets(self.pick_list(ew.INCLUDED, item))
             page.excluded = self.bullets(self.pick_list(ew.EXCLUDED, item))
             page.packing = self.bullets(item.get("take"))
-            page.programme = self.program_blocks(item.get("program"), item.get("day_imgs"))
+            page.timeline = self.timeline_steps(item.get("program"), item.get("day_imgs"))
+            # В EW программа всегда почасовая, дневных блоков в ней нет.
+            page.programme = []
             page.stay = self.stay_blocks(item.get("accommodation"))
 
             # Галерея направления: обложка + hero_extra + фото дней программы

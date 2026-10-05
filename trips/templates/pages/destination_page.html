@@ -110,29 +110,59 @@
     </div>
   </section>
 
-  {# ── ПРОГРАММА ПО ЧАСАМ ──────────────────────────────────────── #}
-  {% if page.programme %}
+  {# ── ЛИНИЯ ВРЕМЕНИ: ПРОГРАММА ПО ЧАСАМ ────────────────────────── #}
+  {% if page.timeline or page.programme %}
   <section class="section" id="itinerary">
     <div class="wrap" style="max-width:920px">
       <div class="section-head">
-        <div><p class="eyebrow">Программа выезда</p><h2>День <em>по часам</em></h2></div>
+        <div>
+          <p class="eyebrow">Программа выезда</p>
+          <h2>{{ page.timeline_heading.0 }} <em>{{ page.timeline_heading.1 }}</em></h2>
+        </div>
       </div>
-      <div class="acc">
+
+      {% if page.timeline %}
+      <ol class="tl">
+        {% for block in page.timeline %}
+          {% if block.block_type == "step" %}
+          <li class="tl-item">
+            <details class="tl-step" {% if forloop.first %}open{% endif %}>
+              <summary class="tl-head">
+                <span class="tl-time">{{ block.value.time }}</span>
+                <span class="tl-title">{{ block.value.title }}</span>
+                <span class="tl-ico" aria-hidden="true"></span>
+              </summary>
+              <div class="tl-body">
+                <div class="tl-body-in">
+                  {{ block.value.text|richtext }}
+                  {% if block.value.image %}
+                    {% image block.value.image fill-1200x675 format-webp as step_img %}
+                    <img src="{{ step_img.url }}" alt="{{ block.value.title }}" loading="lazy" decoding="async"
+                         class="tl-img">
+                  {% endif %}
+                </div>
+              </div>
+            </details>
+          </li>
+          {% endif %}
+        {% endfor %}
+      </ol>
+      {% endif %}
+
+      {% if page.programme %}
+      <div class="acc" style="margin-top:34px">
         {% for block in page.programme %}
           {% if block.block_type == "day" %}
           <div class="acc-item">
             <button class="acc-btn" aria-expanded="false">{{ block.value.title }}<span class="ico" aria-hidden="true">+</span></button>
             <div class="acc-panel"><div class="acc-panel-in">
               {{ block.value.text|richtext }}
-              {% if block.value.image %}
-                {% image block.value.image fill-1200x675 format-webp as prog_img %}
-                <img src="{{ prog_img.url }}" alt="{{ block.value.title }}" loading="lazy" style="border-radius:14px;margin-top:12px;width:100%;aspect-ratio:16/9;object-fit:cover">
-              {% endif %}
             </div></div>
           </div>
           {% endif %}
         {% endfor %}
       </div>
+      {% endif %}
     </div>
   </section>
   {% endif %}

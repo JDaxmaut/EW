@@ -212,6 +212,13 @@ class Destination(Page, ClusterableModel):
         MOUNTAINS = "mountains", "Горы"
         CITY = "city", "Город"
 
+    class Format(models.TextChoices):
+        """Формат поездки — не то же самое, что тип места."""
+
+        ONE_DAY = "one_day", "Однодневный"
+        OVERNIGHT = "overnight", "С ночёвкой"
+        EXCURSION = "excursion", "Экскурсия"
+
     ew_type = models.CharField(
         _("Тип по макету"),
         max_length=16,
@@ -278,6 +285,16 @@ class Destination(Page, ClusterableModel):
         default="1 день",
         help_text="Например: «1 день» или «2 дня / 1 ночь».",
     )
+    format = models.CharField(
+        _("Формат поездки"),
+        max_length=16,
+        choices=Format.choices,
+        default=Format.ONE_DAY,
+        help_text=(
+            "Однодневный, с ночёвкой или экскурсия. От формата зависит заголовок "
+            "программы на странице тура."
+        ),
+    )
     distance = models.CharField(
         _("Расстояние"),
         max_length=40,
@@ -336,11 +353,20 @@ class Destination(Page, ClusterableModel):
         ),
         blank=True,
     )
+    timeline = StreamField(
+        [("step", tb.TimelineStepBlock())],
+        blank=True,
+        verbose_name=_("Линия времени"),
+        help_text=(
+            "Программа по часам: «6:00 — Сбор», «13:00 — Обед» и так далее. "
+            "Порядок блоков и есть порядок шагов."
+        ),
+    )
     programme = StreamField(
         [("day", tb.DayBlock())],
         blank=True,
-        verbose_name=_("Программа"),
-        help_text="Только для поездок с ночёвкой. Для однодневных выездов не нужно.",
+        verbose_name=_("Программа по дням"),
+        help_text="Только для поездок с ночёвкой. Для однодневных не нужно.",
     )
     stay = StreamField(
         [("place", tb.StayBlock())],
@@ -504,6 +530,14 @@ class Destination(Page, ClusterableModel):
             "mountain": "горы",
             "city": "город",
         }.get(self.ew_type, self.get_kind_display())
+
+    @property
+    def timeline_heading(self):
+        """Заголовок программы — зависит от формата поездки."""
+        return {
+            self.Format.EXCURSION: ("Маршрут экскурсии", "по часам"),
+            self.Format.OVERNIGHT: ("Программа поездки", "день за днём"),
+        }.get(self.format, ("Программа дня", "по часам"))
 
     def completeness_percent(self):
         items = self.completeness_items()
@@ -787,6 +821,7 @@ Destination.content_panels = [
             FieldPanel("title"),
             FieldPanel("subtitle"),
             FieldPanel("kind"),
+            FieldPanel("format"),
         ],
         heading=_("Название"),
     ),
@@ -817,6 +852,12 @@ Destination.content_panels = [
             FieldPanel("faq"),
         ],
         heading=_("Что входит и что взять"),
+    ),
+    MultiFieldPanel(
+        [
+            FieldPanel("timeline"),
+        ],
+        heading=_("Линия времени: программа по часам"),
     ),
     MultiFieldPanel(
         [

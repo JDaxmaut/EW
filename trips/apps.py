@@ -15,3 +15,8 @@ class TripsConfig(AppConfig):
                     cursor.execute("PRAGMA synchronous=NORMAL;")
 
         connection_created.connect(set_wal)
+
+        # Каждое сохранение страницы публикует её — черновиков в админке нет.
+        from trips import publish_always
+
+        publish_always.apply()

@@ -179,6 +179,8 @@ WAGTAILADMIN_BASE_URL = config("WAGTAILADMIN_BASE_URL", default="http://localhos
 LOGIN_URL = "/cms/login/"
 LOGIN_REDIRECT_URL = "/cms/"
 WAGTAIL_I18N_ENABLED = False
+# Модерации и черновиков нет: любое сохранение сразу публикует страницу.
+WAGTAIL_MODERATION_ENABLED = False
 
 from PIL import ImageFile as _PILImageFile
 _PILImageFile.LOAD_TRUNCATED_IMAGES = True

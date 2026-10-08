@@ -538,8 +538,7 @@ class Command(BaseCommand):
         home.body = [
             ("nearest", {
                 "heading": "Ближайшие выезды",
-                "subheading": "Цены и свободные места — на текущую дату. "
-                              "Обновляем каждое утро.",
+                "subheading": "",
                 "limit": 6,
             }),
             ("manifest", {

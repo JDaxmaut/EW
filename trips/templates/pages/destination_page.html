@@ -93,7 +93,6 @@
         {% for dep in departures %}
         <button type="button" class="date-row" data-label="{{ dep.weekday_label }}, {{ dep.date_label }}" data-price="{{ dep.price|price }} ₽" data-spots="{{ dep.seats_left }}">
           <span class="dr-date">{{ dep.weekday_label }}, {{ dep.date_label }}</span>
-          <span class="plate {% if dep.seats_left == 0 %}plate-coral{% elif dep.seats_left <= 5 %}plate-sun{% else %}plate-mint{% endif %}" style="box-shadow:none">свободно {{ dep.seats_left }} из {{ dep.seats_total }}</span>
           <span class="dr-price">{{ dep.price|price }} ₽</span>
           <span class="dr-chev" aria-hidden="true">→</span>
         </button>
@@ -110,8 +109,8 @@
     </div>
   </section>
 
-  {# ── ЛИНИЯ ВРЕМЕНИ: ПРОГРАММА ПО ЧАСАМ ────────────────────────── #}
-  {% if page.timeline or page.programme %}
+  {# ── ПРОГРАММА: ОДНО ТЕКСТОВОЕ ПОЛЕ ─────────────────────────── #}
+  {% if page.program_text %}
   <section class="section" id="itinerary">
     <div class="wrap" style="max-width:920px">
       <div class="section-head">
@@ -121,54 +120,28 @@
         </div>
       </div>
 
-      {% if page.timeline %}
-      <ol class="tl">
-        {% for block in page.timeline %}
-          {% if block.block_type == "step" %}
-          <li class="tl-item">
-            <details class="tl-step" {% if forloop.first %}open{% endif %}>
-              <summary class="tl-head">
-                <span class="tl-time">{{ block.value.time }}</span>
-                <span class="tl-title">{{ block.value.title }}</span>
-                <span class="tl-ico" aria-hidden="true"></span>
-              </summary>
-              <div class="tl-body">
-                <div class="tl-body-in">
-                  {{ block.value.text|richtext }}
-                  {% if block.value.image %}
-                    {% image block.value.image fill-1200x675 format-webp as step_img %}
-                    <img src="{{ step_img.url }}" alt="{{ block.value.title }}" loading="lazy" decoding="async"
-                         class="tl-img">
-                  {% endif %}
-                </div>
-              </div>
-            </details>
-          </li>
-          {% endif %}
-        {% endfor %}
-      </ol>
-      {% endif %}
-
-      {% if page.programme %}
-      <div class="acc" style="margin-top:34px">
-        {% for block in page.programme %}
-          {% if block.block_type == "day" %}
-          <div class="acc-item">
-            <button class="acc-btn" aria-expanded="false">{{ block.value.title }}<span class="ico" aria-hidden="true">+</span></button>
-            <div class="acc-panel"><div class="acc-panel-in">
-              {{ block.value.text|richtext }}
-            </div></div>
-          </div>
-          {% endif %}
-        {% endfor %}
+      {% if page.meeting_cities %}
+      <div class="list-plate sun">
+        <h3>Сбор по городам</h3>
+        <ul>
+          {% for b in page.meeting_cities %}
+            {% if b.block_type == "city" %}
+            <li>
+              <strong style="color:var(--ink)">{{ b.value.city }}</strong>{% if b.value.time %} — {{ b.value.time }}{% endif %}{% if b.value.place %} · {{ b.value.place }}{% endif %}
+            </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
       </div>
       {% endif %}
+
+      <div class="tour-text">{{ page.program_text|richtext }}</div>
     </div>
   </section>
   {% endif %}
 
   {# ── ЧТО ВХОДИТ / НЕ ВХОДИТ / ЧТО ВЗЯТЬ ──────────────────────── #}
-  <section class="section" style="padding-top:0;background:var(--mint-100)">
+  <section class="section" style="background:var(--mint-100){% if not page.program_text %};padding-top:0{% endif %}">
     <div class="wrap dir-cols">
       <div>
         <div class="list-plate">
@@ -213,7 +186,7 @@
 
   {# ── ФОТО С МАРШРУТА ─────────────────────────────────────────── #}
   {% if wall_photos %}
-  <section class="section" style="padding-top:0">
+  <section class="section">
     <div class="wrap">
       <div class="section-head">
         <div><p class="eyebrow">Мы там были</p><h2>Кадры <em>с маршрута</em></h2></div>
@@ -233,7 +206,7 @@
 
   {# ── FAQ ─────────────────────────────────────────────────────── #}
   {% if page.faq %}
-  <section class="section" style="padding-top:0">
+  <section class="section"{% if wall_photos %} style="padding-top:0"{% endif %}>
     <div class="wrap" style="max-width:900px">
       <div class="section-head">
         <div><p class="eyebrow">Про это направление спрашивают</p><h2>Частые <em>вопросы</em></h2></div>
@@ -254,7 +227,7 @@
 
   {# ── ПОХОЖИЕ НАПРАВЛЕНИЯ ─────────────────────────────────────── #}
   {% if siblings %}
-  <section class="section" style="padding-top:0;background:var(--mint-100)">
+  <section class="section" style="{% if wall_photos or page.faq %}{% else %}padding-top:0;{% endif %}background:var(--mint-100)">
     <div class="wrap">
       <div class="section-head">
         <div><p class="eyebrow">Похожие направления</p><h2>Куда ещё <em>едем</em></h2></div>
@@ -286,7 +259,7 @@
     <div class="section-bg" style="background-image:url('{% static 'img/ew/texture-water.webp' %}')" aria-hidden="true"></div>
     <div class="wrap faq-grid">
       <div>
-        <h2>Едем в <em>{{ page.title }}</em>?</h2>
+        <h2>Хотите <em>забронировать</em>?</h2>
         <p class="section-sub">Бронь — диалог в мессенджере: пришлём свободные даты, ответим на вопросы и придержим место на сутки. Предоплата нужна только за 48 часов до выезда.</p>
       </div>
       <div class="signup-card">

@@ -2,7 +2,7 @@ from datetime import date
 
 from django.conf import settings
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST

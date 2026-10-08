@@ -43,15 +43,16 @@ module.exports = {
         coral: "#FF6B4A",
         "coral-soft": "#FF8A5B",
         "coral-deep": "#C93C1B",
-        sun: "#FFC145",
+        sun: "#FFC94A",
         "sun-deep": "#E09B00",
 
         white: "#FFFFFF",
       },
 
       fontFamily: {
-        serif: ['"Cormorant Garamond"', "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        // Единый шрифт сайта — как в static/css/site.css (--font-body).
+        serif: ["Manrope", "Segoe UI", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Manrope", "Segoe UI", "system-ui", "-apple-system", "sans-serif"],
       },
 
       letterSpacing: {

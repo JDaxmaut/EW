@@ -10,20 +10,28 @@ from django.utils.html import format_html
 
 from wagtail import hooks
 
+# Версия в адресе файлов: браузер не должен держать старую тему.
+# Меняем число после правки admin.css или admin.js — иначе «ничего не поменялось».
+ADMIN_UI_VERSION = 7
+
 
 @hooks.register("insert_global_admin_css")
 def global_admin_css():
     """Тема админки: бирюзовый акцент на бумажном фоне."""
     return format_html(
-        '<link rel="stylesheet" href="{}">', static("admin_ui/css/admin.css")
+        '<link rel="stylesheet" href="{}?v={}">',
+        static("admin_ui/css/admin.css"),
+        ADMIN_UI_VERSION,
     )
 
 
 @hooks.register("insert_global_admin_js")
 def global_admin_js():
-    """Мелочи UX: человеческие подсказки в полях тура."""
+    """Светлая тема без оглядки на системную, мелочи UX, подсказки в полях."""
     return format_html(
-        '<script src="{}"></script>', static("admin_ui/js/admin.js")
+        '<script src="{}?v={}"></script>',
+        static("admin_ui/js/admin.js"),
+        ADMIN_UI_VERSION,
     )
 
 

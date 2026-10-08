@@ -2,7 +2,7 @@ from datetime import date
 
 from django.conf import settings
 
-from trips.requisites import bank_line, inn_line, parse_requisites, phone_href
+from trips.requisites import bank_line, format_phone, inn_line, parse_requisites, phone_href
 
 MONTHS = [
     "января", "февраля", "марта", "апреля", "мая", "июня",
@@ -57,12 +57,15 @@ def seats_phrase(n):
 
 
 def static_version() -> str:
-    """Время изменения site.js — чтобы браузер не держал старую копию."""
+    """Время изменения статики — чтобы браузер не держал старую копию."""
     from pathlib import Path
 
+    files = (
+        Path(settings.BASE_DIR) / "static" / "js" / "site.js",
+        Path(settings.BASE_DIR) / "static" / "css" / "site.css",
+    )
     try:
-        path = Path(settings.BASE_DIR) / "static" / "js" / "site.js"
-        return str(int(path.stat().st_mtime))
+        return str(int(max(path.stat().st_mtime for path in files)))
     except OSError:
         return "1"
 
@@ -93,6 +96,16 @@ def site_settings(request):
     contact_page = ContactPage.objects.live().first()
     home = Destination.objects.live().order_by("title").first()
 
+    # getattr — на случай, если миграция phone_2 ещё не применена.
+    phone_2 = getattr(contact_page, "phone_2", "") or "" if contact_page else ""
+
+    # Оба номера показываем везде, где указан телефон.
+    phone_1 = (
+        req.get("phone")
+        or getattr(settings, "PHONE", "")
+        or (contact_page.phone if contact_page else "")
+    )
+
     telegram_url = getattr(settings, "TELEGRAM_URL", "")
     whatsapp_url = getattr(settings, "WHATSAPP_URL", "")
     max_url = getattr(settings, "MAX_URL", "")
@@ -112,7 +125,10 @@ def site_settings(request):
         "company_name": company_name,
         "company_inn": company_inn,
         "BANK_DETAILS": bank_details,
-        "PHONE_HREF": phone_href(req) or getattr(settings, "PHONE_HREF", ""),
+        "PHONE": format_phone(phone_1),
+        "PHONE_HREF": phone_href({"phone": phone_1}) or getattr(settings, "PHONE_HREF", ""),
+        "PHONE_2": phone_2,
+        "PHONE_2_HREF": phone_href({"phone": phone_2}),
         "requisites": req,
         "legal_pages": legal_pages,
         "legal_index_url": legal_index.url if legal_index else "/legal/",

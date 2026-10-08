@@ -88,6 +88,13 @@
         btn.setAttribute("aria-expanded", "true");
       }
     });
+    /* фото в программе дня догружаются после клика — иначе панель обрежет их */
+    panel.querySelectorAll("img").forEach(function (img) {
+      if (img.complete) return;
+      img.addEventListener("load", function () {
+        if (item.classList.contains("open")) panel.style.maxHeight = panel.scrollHeight + "px";
+      });
+    });
   });
   var first = document.querySelector(".acc-item .acc-btn");
   if (first) first.click();
@@ -141,8 +148,19 @@
   }
 
   /* ---------- куки-баннер ---------- */
-  // Согласие хранится в cookie, которую ставит сервер на /cookie-accept/,
-  // поэтому баннер просто не рендерится повторно и скрипту здесь делать нечего.
+  // Согласие ставит сервер на /cookie-accept/, но делать это надо молча:
+  // обычный переход перезагружал страницу и выбрасывал наверх.
+  var cookieBar = document.getElementById("cookieBar");
+  var cookieOk = document.getElementById("cookieOk");
+  if (cookieBar && cookieOk) {
+    cookieOk.addEventListener("click", function (e) {
+      e.preventDefault();
+      var url = cookieOk.getAttribute("href");
+      fetch(url, { credentials: "same-origin" })
+        .then(function () { cookieBar.remove(); })
+        .catch(function () { window.location.href = url; });
+    });
+  }
 
   /* ---------- всплывающие мессенджеры ---------- */
   var fab = document.getElementById("mwFab");

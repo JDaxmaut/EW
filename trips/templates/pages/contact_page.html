@@ -14,7 +14,8 @@
         <div class="list-plate">
           <h3>Связаться</h3>
           <ul>
-            {% if requisites.phone %}<li>Телефон: <a href="tel:{{ PHONE_HREF }}">{{ requisites.phone }}</a></li>{% elif page.phone %}<li>Телефон: <a href="tel:{{ PHONE_HREF }}">{{ page.phone }}</a></li>{% endif %}
+            {% if PHONE %}<li>Телефон: <a href="tel:{{ PHONE_HREF }}">{{ PHONE }}</a></li>{% endif %}
+            {% if PHONE_2 %}<li>Телефон: <a href="tel:{{ PHONE_2_HREF }}">{{ PHONE_2 }}</a></li>{% endif %}
             {% if TELEGRAM_URL %}<li>Telegram: <a href="{{ TELEGRAM_URL }}">Написать в Telegram</a></li>{% endif %}
             {% if WHATSAPP_URL %}<li>WhatsApp: <a href="{{ WHATSAPP_URL }}">Написать в WhatsApp</a></li>{% endif %}
             {% if MAX_URL %}<li>MAX: <a href="{{ MAX_URL }}">Написать в MAX</a></li>{% endif %}

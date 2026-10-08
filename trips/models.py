@@ -1,4 +1,5 @@
 from datetime import date
+import re
 
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -221,29 +222,28 @@ class Destination(Page, ClusterableModel):
         OVERNIGHT = "overnight", "С ночёвкой"
         EXCURSION = "excursion", "Экскурсия"
 
+    class CatalogType(models.TextChoices):
+        """Ключ фильтра каталога. Важен отдельно от kind: «микропляж» и
+        «дикий пляж» — оба kind=wild_beach, но в фильтре это разные чипы."""
+
+        MICRO = "micro", "Микропляж"
+        WILD = "wild", "Дикий пляж"
+        BEACH = "beach", "Пляж"
+        MOUNTAIN = "mountain", "Горы"
+        CITY = "city", "Город"
+
     ew_type = models.CharField(
-        _("Тип по макету"),
+        _("Тип в фильтре каталога"),
         max_length=16,
-        default="beach",
-        help_text="Ключ фильтра каталога: micro, wild, beach, mountain, city.",
-    )
-    ew_duration = models.CharField(
-        _("Длительность по макету"),
-        max_length=16,
-        default="day",
-        help_text="day — один день, night — с ночёвкой.",
+        choices=CatalogType.choices,
+        default=CatalogType.BEACH,
+        help_text="По нему фильтруется каталог и подписывается плашка на карточке.",
     )
     ew_days = models.CharField(
         _("Дни выездов"),
         max_length=40,
         blank=True,
-        help_text="Через запятую, как в макете: «пт,сб,вс».",
-    )
-    distance_km = models.PositiveIntegerField(
-        _("Расстояние, км"),
-        null=True,
-        blank=True,
-        help_text="Числом — по нему работает фильтр «до 100 / 100–200 / дальше 200 км».",
+        help_text="Через запятую: «пт,сб,вс». Попадает в подзаголовок на странице тура.",
     )
 
     subtitle = models.CharField(
@@ -362,6 +362,23 @@ class Destination(Page, ClusterableModel):
         help_text=(
             "Программа по часам: «6:00 — Сбор», «13:00 — Обед» и так далее. "
             "Порядок блоков и есть порядок шагов."
+        ),
+    )
+    meeting_cities = StreamField(
+        [("city", tb.MeetingCityBlock())],
+        blank=True,
+        verbose_name=_("Сбор по городам"),
+        help_text=(
+            "Если выезд собирается из разных городов — время для каждого города "
+            "свое: Майкоп 6:30, Краснодар 7:00. Пустой список — блок не показывается."
+        ),
+    )
+    program_text = RichTextField(
+        _("Программа текстом"),
+        blank=True,
+        help_text=(
+            "Только для однодневных: вся программа одним текстом — "
+            "пишите и форматируйте как удобно. Для многодневных дней — блоки «Линия времени»."
         ),
     )
     programme = StreamField(
@@ -505,6 +522,22 @@ class Destination(Page, ClusterableModel):
         return [d.strip() for d in self.ew_days.split(",") if d.strip()]
 
     @property
+    def ew_duration(self):
+        """Длительность для фильтра каталога — считается из формата.
+
+        Раньше было отдельным полем, и его заполнял только импортёр:
+        тур, созданный руками, не попадал в фильтр «с ночёвкой».
+        """
+        return "night" if self.format == self.Format.OVERNIGHT else "day"
+
+    @property
+    def distance_km(self):
+        """Расстояние числом — вытаскивается из текстового поля «Расстояние»,
+        чтобы фильтр «до 100 / 100–200 / дальше 200 км» нельзя было забыть."""
+        digits = re.search(r"\d+", self.distance or "")
+        return int(digits.group()) if digits else None
+
+    @property
     def days_away(self):
         """Сколько дней до ближайшего выезда — для фильтра по дате."""
         dep = self.next_departure
@@ -533,13 +566,64 @@ class Destination(Page, ClusterableModel):
             "city": "город",
         }.get(self.ew_type, self.get_kind_display())
 
+    #: «6:00 +1» в поле времени — время следующего дня многодневной поездки.
+    DAY_OFFSET_RE = re.compile(r"\s*\+(\d+)\s*")
+
+    @property
+    def timeline_steps(self):
+        """Шаги линии времени обычными словарями: удобно и в модели, и в шаблоне."""
+        steps = []
+        for block in self.timeline:
+            if block.block_type != "step":
+                continue
+            value = block.value
+            steps.append(
+                {
+                    "time": str(value.get("time") or "").strip(),
+                    "title": str(value.get("title") or "").strip(),
+                    "text": value.get("text"),
+                    "image": value.get("image"),
+                }
+            )
+        return steps
+
+    @property
+    def is_multi_day(self):
+        """Поездка длиннее одного дня — распознаётся по метке «+1» во времени.
+
+        Однодневка с ночёвкой такой метки не имеет, поэтому у неё остаётся
+        почасовая линия времени, как и у обычной однодневки.
+        """
+        return any(self.DAY_OFFSET_RE.search(step["time"]) for step in self.timeline_steps)
+
+    @property
+    def timeline_by_day(self):
+        """Шаги, сгруппированные по дням: «+1» открывает второй день и дальше.
+
+        Возвращает [{\"number\": 1, \"steps\": [...]}], причём в шагах метка
+        дня вычищена из времени — на втором дне не должно быть «+1».
+        """
+        days = []
+        for step in self.timeline_steps:
+            match = self.DAY_OFFSET_RE.search(step["time"])
+            index = int(match.group(1)) if match else 0
+            while len(days) <= index:
+                days.append({"number": len(days) + 1, "steps": []})
+            days[index]["steps"].append(
+                {**step, "time": self.DAY_OFFSET_RE.sub("", step["time"]).strip()}
+            )
+        return days
+
     @property
     def timeline_heading(self):
-        """Заголовок программы — зависит от формата поездки."""
-        return {
-            self.Format.EXCURSION: ("Маршрут экскурсии", "по часам"),
-            self.Format.OVERNIGHT: ("Программа поездки", "день за днём"),
-        }.get(self.format, ("Программа дня", "по часам"))
+        """Заголовок программы — зависит от того, как её показываем на странице."""
+        if self.is_multi_day:
+            return ("Программа поездки", "день за днём")
+        if self.format == self.Format.EXCURSION:
+            return ("Маршрут экскурсии", "по часам")
+        if self.format == self.Format.OVERNIGHT:
+            return ("Программа поездки", "по часам")
+        return ("Программа дня", "по часам")
 
     def completeness_percent(self):
         items = self.completeness_items()
@@ -681,6 +765,14 @@ class ContactPage(Page):
     whatsapp = models.CharField(_("WhatsApp"), max_length=120, blank=True)
     max_link = models.CharField(_("MAX"), max_length=200, blank=True)
     phone = models.CharField(_("Телефон"), max_length=60, blank=True)
+    phone_2 = models.CharField(
+        _("Второй телефон"),
+        max_length=60,
+        blank=True,
+        default="8 909 465 68 15",
+        help_text="Показывается вторым номером в контактах и в подвале сайта. "
+                  "Оставьте пустым — номер не выводится.",
+    )
     email = models.CharField(_("Почта"), max_length=120, blank=True)
     address = models.CharField(_("Город отправления"), max_length=120, blank=True)
     work_hours = models.CharField(
@@ -821,6 +913,7 @@ LegalPage.edit_handler = TabbedInterface(LEGAL_TABS)
 
 
 HomePage.content_panels = [
+    FieldPanel("title", heading="Заголовок сайта", help_text="Название главной страницы."),
     MultiFieldPanel(
         [
             FieldPanel("hero_eyebrow"),
@@ -838,6 +931,7 @@ HomePage.content_panels = [
 DestinationIndexPage.content_panels = [FieldPanel("intro")]
 
 AboutPage.content_panels = [
+    FieldPanel("title", heading="Заголовок страницы", help_text="Например: О с нами."),
     FieldPanel("intro"),
     FieldPanel("body"),
     FieldPanel("figures"),
@@ -846,6 +940,7 @@ AboutPage.content_panels = [
 ]
 
 ContactPage.content_panels = [
+    FieldPanel("title", heading="Заголовок страницы", help_text="Например: Контакты."),
     FieldPanel("body"),
     MultiFieldPanel(
         [
@@ -858,6 +953,7 @@ ContactPage.content_panels = [
     MultiFieldPanel(
         [
             FieldPanel("phone"),
+            FieldPanel("phone_2"),
             FieldPanel("email"),
             FieldPanel("address"),
             FieldPanel("work_hours"),
@@ -867,10 +963,18 @@ ContactPage.content_panels = [
 ]
 
 InfoPage.content_panels = [
+    FieldPanel("title", heading="Заголовок страницы", help_text="Например: Как добраться."),
     FieldPanel("body"),
     FieldPanel("meeting_points"),
     FieldPanel("notes"),
 ]
+
+# Ответственный редактор — служебная вкладка Wagtail. Без неё поле owner
+# не редактируется вовсе: оно не входит в content_panels по умолчанию.
+for _page_model in (HomePage, AboutPage, ContactPage, InfoPage):
+    _page_model.settings_panels = [
+        FieldPanel("owner", heading="Ответственный редактор"),
+    ]
 
 ContactSubmission.panels = [
     FieldPanel("name"),

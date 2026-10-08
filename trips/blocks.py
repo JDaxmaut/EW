@@ -44,7 +44,10 @@ class TimelineStepBlock(blocks.StructBlock):
                     label="Время",
                     max_length=20,
                     required=False,
-                    help_text="Например: «6:00» или «19:30». Можно оставить пустым.",
+                    help_text="Например: «6:00» или «19:30». Для второго дня "
+                              "многодневной поездки допишите «+1»: «6:00 +1» — "
+                              "такие шаги собираются в аккордеон «День 1 / День 2». "
+                              "Можно оставить пустым.",
                 )),
                 ("title", CharBlock(
                     label="Что происходит",
@@ -120,6 +123,32 @@ class MeetingPointBlock(blocks.StructBlock):
                 ("note", TextBlock(label="Комментарий", required=False)),
             ],
             label="Точка сбора",
+            icon="site",
+            **kwargs,
+        )
+
+
+class MeetingCityBlock(blocks.StructBlock):
+    """Сбор в одном городе — время может отличаться от города к городу."""
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            [
+                ("city", CharBlock(label="Город", max_length=80)),
+                ("time", CharBlock(
+                    label="Время сбора",
+                    max_length=40,
+                    required=False,
+                    help_text="Например: <6:30>. Если время ещё уточняете — оставьте пустым.",
+                )),
+                ("place", CharBlock(
+                    label="Точка сбора",
+                    max_length=160,
+                    required=False,
+                    help_text="Например: «пл. Урицкого, у памятника».",
+                )),
+            ],
+            label="Город сбора",
             icon="site",
             **kwargs,
         )

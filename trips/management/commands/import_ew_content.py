@@ -121,8 +121,13 @@ class Command(BaseCommand):
 
     # ── служебное ──────────────────────────────────────────────
     def bullets(self, items):
-        """Список строк → формат StreamField с одним ListBlock."""
-        return [("items", [{"value": str(i)} for i in (items or [])])]
+        """Список строк → формат StreamField с одним ListBlock.
+
+        Внутри ListBlock(CharBlock) каждый пункт — просто строка.
+        Раньше здесь клался лишний словарь {"value": ...}: сайт это
+        терпел, а в админке поле показывалось как {'value': 'текст'}.
+        """
+        return [("items", [str(i) for i in (items or [])])]
 
     def timeline_steps(self, steps, day_imgs=None):
         """Почасовая программа EW -> блоки линии времени."""
@@ -225,18 +230,17 @@ class Command(BaseCommand):
             page.subtitle = item.get("tagline", "")
             page.kind = KIND_BY_TYPE.get(item.get("type"), Destination.Kind.BEACH)
             page.ew_type = item.get("type", "beach")
-            page.ew_duration = item.get("duration", "day")
             page.format = (
                 Destination.Format.OVERNIGHT
                 if item.get("duration") == "night"
                 else Destination.Format.ONE_DAY
             )
             page.ew_days = ", ".join(item.get("days") or [])
-            page.distance_km = item.get("km") or None
             page.eyebrow = f"{SITE_REGION_SHORT} · {'выезды: ' + ', '.join(item.get('days', []))}"
             page.price_from = f"{item['price']:,}".replace(",", " ")
             page.duration = DURATION_LABEL.get(item.get("duration", "day"), "один день")
             page.distance = f"{item['km']} км" if item.get("km") else ""
+            # distance_km больше не пишем: он вычисляется из поля distance.
             page.travel_time = ""
             page.parking = ""
             page.summary = (item.get("desc") or [""])[0]

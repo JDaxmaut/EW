@@ -29,14 +29,10 @@ CSS_VERSION = "v5"
 
 
 # ─────────────────────────── Стили и скрипты ───────────────────────────
-
-@hooks.register("insert_global_admin_css")
-def admin_custom_css():
-    return format_html(
-        '<link rel="stylesheet" href="{}?{}">',
-        static("css/admin.css"),
-        CSS_VERSION,
-    )
+# Стили админки живут в admin_ui/static/admin_ui/css/admin.css: туда же
+# переехали стили чек-листа, панелей и превью, раньше бывшие здесь.
+# Вторую ссылку на тему подключать нельзя — она грузилась последней и
+# перебивала ту, что ниже, отсюда был «сливающийся» текст.
 
 
 @hooks.register("insert_global_admin_js")
@@ -56,21 +52,6 @@ class QuickActionsPanel(Component):
 
     def render_html(self, parent_context=None):
         return mark_safe(render_to_string("wagtailadmin/panels/quick_actions.html", {}))
-
-
-class DraftDestinationsPanel(Component):
-    name = "draft_destinations"
-    order = 50
-
-    def render_html(self, parent_context=None):
-        from trips.models import Destination
-
-        drafts = Destination.objects.filter(live=False).order_by("title")[:10]
-        if not drafts.exists():
-            return mark_safe("")
-        return mark_safe(
-            render_to_string("wagtailadmin/panels/draft_destinations.html", {"drafts": drafts})
-        )
 
 
 class IncompleteDestinationsPanel(Component):
@@ -121,7 +102,8 @@ def customize_homepage_panels(request, panels):
     panels.insert(0, QuickActionsPanel())
     panels.insert(1, UpcomingDeparturesPanel())
     panels.append(IncompleteDestinationsPanel())
-    panels.append(DraftDestinationsPanel())
+    # Панели черновиков нет: сохранение всегда публикует страницу, поэтому
+    # «черновики» в админке не появляются вовсе.
 
 
 # ─────────────────── Экран расписания выездов ───────────────────
@@ -190,12 +172,55 @@ def checklist_api(request, page_id):
     })
 
 
+# ─────────────────── Список туров ───────────────────
+
+def tours_list_view(request):
+    """Все туры сразу, с фото, ценой и готовностью.
+
+    В дереве страниц туры спрятаны под каталогом, и найти нужный
+    неудобно. Здесь редактор видит их одним списком и может отфильтровать.
+    """
+    from trips.models import Destination, DestinationIndexPage
+
+    tours = Destination.objects.select_related("cover").order_by("title")
+
+    query = (request.GET.get("q") or "").strip()
+    if query:
+        tours = tours.filter(title__icontains=query)
+
+    format_filter = request.GET.get("format") or ""
+    if format_filter:
+        tours = tours.filter(format=format_filter)
+
+    state = request.GET.get("state") or ""
+    if state == "no_cover":
+        tours = tours.filter(cover__isnull=True)
+    elif state == "ready":
+        tours = [t for t in tours if t.completeness_percent() >= 80]
+    elif state == "drafts":
+        tours = [t for t in tours if t.completeness_percent() < 80]
+
+    catalog = DestinationIndexPage.objects.first()
+    return render(
+        request,
+        "wagtailadmin/tours_list.html",
+        {
+            "tours": tours,
+            "catalog_id": catalog.id if catalog else None,
+            "query": query,
+            "format_filter": format_filter,
+            "state_filter": state,
+        },
+    )
+
+
 @hooks.register("register_admin_urls")
 def register_admin_urls():
     return [
         path("schedule/", schedule_view, name="schedule"),
         path("schedule/quick-save/", quick_save_departures, name="quick_save_departures"),
         path("nw/checklist/<int:page_id>/", checklist_api, name="nw_checklist"),
+        path("tours/", tours_list_view, name="tours_list"),
     ]
 
 
@@ -206,6 +231,17 @@ def register_schedule_menu_item():
         "/cms/schedule/",
         icon_name="date",
         order=180,
+    )
+
+
+@hooks.register("register_admin_menu_item")
+def register_tours_menu_item():
+    """Пункт «Туры» — самый верхний: он нужнее всего редактору."""
+    return MenuItem(
+        "Туры",
+        "/cms/tours/",
+        icon_name="site",
+        order=100,
     )
 
 
@@ -237,11 +273,45 @@ class ChecklistData(Component):
 
 @hooks.register("construct_page_action_menu")
 def add_checklist_to_action_menu(menu_items, request, context):
-    """Хук получает список пунктов меню и дополняет его.
+    """Убираем из меню то, что редактору не нужно, и оставляем чек-лист.
 
-    Важно: хук не генератор — он именно дополняет переданный список,
-    иначе данные в разметку не попадут.
+    Хук получает список пунктов меню и дополняет его. Важно: хук не
+    генератор — он именно дополняет переданный список, иначе данные
+    в разметку не попадут.
+
+    ВАЖНО про action-publish: в Wagtail 7.4 кнопка «Опубликовать» — это
+    и есть пункт меню с именем action-publish, и именно она сохраняет
+    страницу. Шаблон pages/edit.html выводит {% block actions %} целиком
+    из action_menu, поэтому если убрать этот пункт, кнопок сохранения
+    не останется вообще. Переименовать её в «Сохранить» делает JS.
+
+    Удаляем: «Сохранить черновик», «Снять с публикации» и пункты workflow
+    (модерация выключена). «Посмотреть историю» убирает JS: это не пункт
+    меню.
     """
+    junk = {
+        "action-unpublish",
+        "action-cancel-workflow",
+        "action-restart-workflow",
+        "action-submit-moderation",
+    }
+
+    # Кнопку «Сохранить черновик» убираем только тем, кто может публиковать:
+    # у такого редактора есть «Опубликовать», а у того, кому публикация
+    # запрещена, она остаётся единственным способом сохранить правку.
+    page = context.get("page") if isinstance(context, dict) else getattr(context, "page", None)
+    user = getattr(request, "user", None)
+    can_publish = bool(
+        page is not None
+        and user is not None
+        and user.has_perm("wagtailadmin.change_pagerevision")
+        and page.permissions_for_user(user).can_publish()
+    )
+    if can_publish:
+        junk = junk | {"action-save-draft"}
+
+    menu_items[:] = [item for item in menu_items if getattr(item, "name", None) not in junk]
+
     from trips.models import Destination
 
     page = context.get("page") if isinstance(context, dict) else getattr(context, "page", None)

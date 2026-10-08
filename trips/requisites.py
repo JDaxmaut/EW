@@ -95,3 +95,14 @@ def phone_href(req: dict) -> str:
     if digits.startswith("8"):
         digits = "7" + digits[1:]
     return f"+{digits}" if digits else ""
+
+
+def format_phone(phone: str) -> str:
+    """+79183632087 -> «+7 918 363-20-87». Неизвестный формат — как есть."""
+    raw = (phone or "").strip()
+    digits = re.sub(r"\D", "", raw)
+    if digits.startswith("8"):
+        digits = "7" + digits[1:]
+    if len(digits) == 11 and digits.startswith("7"):
+        return f"+7 {digits[1:4]} {digits[4:7]}-{digits[7:9]}-{digits[9:11]}"
+    return raw

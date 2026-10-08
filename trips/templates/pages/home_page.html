@@ -26,48 +26,10 @@
     </div>
   </section>
 
-  {# ── ЭКРАН 2 · КАРУСЕЛЬ ВЫЕЗДОВ ───────────────────────────────── #}
-  <section class="section on-dark" id="trips">
-    <div class="section-bg" style="background-image:url('{% static "img/ew/texture-water.webp" %}')" aria-hidden="true"></div>
-    <div class="wrap section-head">
-      <div>
-        <h2>Ближайшие <em>выезды</em></h2>
-        <p class="section-sub">Цены и свободные места — на текущую дату. Обновляем каждое утро.</p>
-      </div>
-    </div>
-
-    <div class="wrap carousel-zone">
-      <div class="trip-scroller" tabindex="0" aria-label="Карусель ближайших выездов">
-        {% for dep in nearest_departures %}
-        <article class="trip-card">
-          <div class="trip-photo">
-            {% if dep.destination.cover %}
-              {% image dep.destination.cover fill-720x900 format-webp as trip_img %}
-              <img src="{{ trip_img.url }}" alt="{{ dep.destination.title }}" loading="lazy">
-            {% endif %}
-          </div>
-          <div class="trip-body">
-            <p class="trip-date"><small>{{ dep.weekday_label }} · {{ dep.destination.get_kind_display }}</small>{{ dep.date_label }}</p>
-            <p class="trip-dir"><b>{{ dep.destination.title }}</b>. {{ dep.destination.subtitle|default:"выезд" }}.</p>
-            <div class="trip-meta">
-              <span class="plate {% if dep.seats_left == 0 %}plate-coral{% elif dep.seats_left <= 5 %}plate-sun{% else %}plate-turquoise{% endif %}">свободно {{ dep.seats_left }} из {{ dep.seats_total }}</span>
-              <span class="trip-price">{{ dep.price|price }} ₽<span>за место</span></span>
-              <a class="btn btn-turquoise btn-sm" href="{% pageurl dep.destination %}#booking" style="margin-left:auto">Записаться</a>
-            </div>
-          </div>
-        </article>
-        {% empty %}
-        <article class="trip-card"><div class="trip-body"><p class="trip-dir">Расписание выездов скоро появится.</p></div></article>
-        {% endfor %}
-      </div>
-      <div class="carousel-nav">
-        <button class="car-arrow" data-car="prev" aria-label="Предыдущий выезд"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
-        <button class="car-arrow" data-car="next" aria-label="Следующий выезд"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
-        <div class="car-dots" role="group" aria-label="Прогресс карусели"></div>
-        <span class="car-counter">1 из {{ nearest_departures|length }}</span>
-      </div>
-    </div>
-  </section>
+  {# ── ЭКРАН 2 · КАРУСЕЛЬ ВЫЕЗДОВ — блок «Ближайшие выезды» из StreamField главной ── #}
+  {% for block in page.body %}
+    {% if block.block_type == "nearest" %}{% include_block block %}{% endif %}
+  {% endfor %}
 
   {# ── ПОЛОСА НАПРАВЛЕНИЙ ──────────────────────────────────────── #}
   <section class="dirs-strip-section">

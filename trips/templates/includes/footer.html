@@ -14,7 +14,8 @@
     <div class="footer-cols">
       <div>
         <h4>Контакты и мессенджеры</h4>
-        {% if requisites.phone or contact_page.phone %}<p><a href="tel:{{ PHONE_HREF }}">{{ requisites.phone|default:contact_page.phone }}</a></p>{% endif %}
+        {% if PHONE %}<p><a href="tel:{{ PHONE_HREF }}">{{ PHONE }}</a></p>{% endif %}
+        {% if PHONE_2 %}<p><a href="tel:{{ PHONE_2_HREF }}">{{ PHONE_2 }}</a></p>{% endif %}
         {% if requisites.email or contact_page.email %}<p><a href="mailto:{{ requisites.email|default:contact_page.email }}">{{ requisites.email|default:contact_page.email }}</a></p>{% endif %}
         {% if requisites.address or contact_page.address %}<p>{{ requisites.address|default:contact_page.address }}</p>{% endif %}
         <div class="messengers">

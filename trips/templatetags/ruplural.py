@@ -52,3 +52,32 @@ def price(value):
 # В шаблонах фильтр зовётся короче: {{ n|ruplural:"место,места,мест" }}
 ruplural = ru_plural
 register.filter("ruplural", ru_plural)
+
+
+import re
+
+# Абзац-маркер дня в программе: <p><strong>День 1</strong></p>
+_DAY_MARKER_RE = re.compile(
+    r"<p[^>]*>\s*<strong[^>]*>\s*День\s*(\d+)\s*</strong>\s*</p>",
+    re.IGNORECASE,
+)
+
+
+@register.filter
+def program_days(value):
+    """Разбить программу (одно текстовое поле) на дни по абзацам «День N».
+
+    Возвращает [] меньше двух дней — тогда шаблон рендерит текст целиком.
+    Для многодневки получается список {"number": int, "html": str} —
+    по нему собирается аккордеон «День 1 / День 2 / …».
+    """
+    html = str(value or "")
+    marks = list(_DAY_MARKER_RE.finditer(html))
+    if len(marks) < 2:
+        return []
+    days = []
+    for i, m in enumerate(marks):
+        start = m.end()
+        end = marks[i + 1].start() if i + 1 < len(marks) else len(html)
+        days.append({"number": int(m.group(1)), "html": html[start:end].strip()})
+    return days

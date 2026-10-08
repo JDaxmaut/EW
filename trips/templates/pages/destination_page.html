@@ -120,22 +120,21 @@
         </div>
       </div>
 
-      {% if page.meeting_cities %}
-      <div class="list-plate sun">
-        <h3>Сбор по городам</h3>
-        <ul>
-          {% for b in page.meeting_cities %}
-            {% if b.block_type == "city" %}
-            <li>
-              <strong style="color:var(--ink)">{{ b.value.city }}</strong>{% if b.value.time %} — {{ b.value.time }}{% endif %}{% if b.value.place %} · {{ b.value.place }}{% endif %}
-            </li>
-            {% endif %}
-          {% endfor %}
-        </ul>
+      {# Многодневка: аккордеон «День 1 / День 2», однодневка: просто текст #}
+      {% with days=page.program_text|program_days %}
+      {% if days %}
+      <div class="acc">
+        {% for d in days %}
+        <div class="acc-item">
+          <button class="acc-btn" aria-expanded="false">День {{ d.number }}<span class="ico" aria-hidden="true">+</span></button>
+          <div class="acc-panel"><div class="acc-panel-in"><div class="tour-text">{{ d.html|safe }}</div></div></div>
+        </div>
+        {% endfor %}
       </div>
-      {% endif %}
-
+      {% else %}
       <div class="tour-text">{{ page.program_text|richtext }}</div>
+      {% endif %}
+      {% endwith %}
     </div>
   </section>
   {% endif %}

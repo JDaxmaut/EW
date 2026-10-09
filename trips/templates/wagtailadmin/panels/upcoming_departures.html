@@ -18,7 +18,7 @@
           <tr>
             <td><strong>{{ dep.start_date|date:"d.m.Y" }}</strong>
               <span style="color:var(--nw-text-3)">{{ dep.weekday_label }}</span></td>
-            <td><a href="{% pageurl dep.destination %}edit/">{{ dep.destination.title }}</a></td>
+            <td><a href="{% url 'wagtailadmin_pages:edit' dep.destination.id %}">{{ dep.destination.title }}</a></td>
             <td><input type="number" name="price_{{ dep.pk }}" value="{{ dep.price }}"
                        min="1" style="width:100%"></td>
             <td><input type="number" name="seats_{{ dep.pk }}" value="{{ dep.seats_left }}"

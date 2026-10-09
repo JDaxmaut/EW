@@ -1,6 +1,6 @@
 from django.conf import settings
 
-ADMIN_PREFIXES = ("/tochka-cms/", "/django-admin/", "/documents/")
+ADMIN_PREFIXES = ("/cms/", "/tochka-cms/", "/django-admin/", "/documents/")
 
 
 def _csp_header():

@@ -38,7 +38,7 @@
           <tr>
             <td><strong>{{ dep.start_date|date:"d.m.Y" }}</strong></td>
             <td style="color:var(--nw-text-3)">{{ dep.weekday_label }}</td>
-            <td><a href="{% pageurl dep.destination %}edit/">{{ dep.destination.title }}</a></td>
+            <td><a href="{% url 'wagtailadmin_pages:edit' dep.destination.id %}">{{ dep.destination.title }}</a></td>
             <td style="color:var(--nw-text-3);font-size:13.5px">
               {{ dep.meeting_point|default:"—" }}
             </td>

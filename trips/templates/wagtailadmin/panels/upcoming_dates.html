@@ -5,7 +5,7 @@
   </div>
 
   {% if dates %}
-  <form method="post" action="/tochka-cms/tour-dates/quick-save/">
+  <form method="post" action="{% url 'quick_save_departures' %}">
     {% csrf_token %}
 
     {# Desktop: таблица #}
@@ -24,7 +24,7 @@
         {% for d in dates %}
         <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
           <td style="padding:12px 24px;">
-            <a href="/tochka-cms/pages/{{ d.page.pk }}/edit/#tab-parameters"
+            <a href="{% url 'wagtailadmin_pages:edit' d.page.pk %}#tab-parameters"
                style="color:#ddd8cc;text-decoration:none;font-size:13px;">
               {{ d.page.title }}
             </a>
@@ -45,7 +45,7 @@
             </div>
           </td>
           <td style="padding:12px 16px;text-align:center;">
-            <a href="/tochka-cms/pages/{{ d.page.pk }}/edit/"
+            <a href="{% url 'wagtailadmin_pages:edit' d.page.pk %}"
                style="color:rgba(221,216,204,0.4);font-size:12px;text-decoration:none;">✎</a>
           </td>
         </tr>

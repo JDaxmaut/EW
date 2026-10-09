@@ -8,7 +8,7 @@
     {% for tour in drafts %}
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;">
       <span style="color:#ddd8cc;font-size:13px;">{{ tour.title }}</span>
-      <a href="/tochka-cms/pages/{{ tour.pk }}/edit/"
+      <a href="{% url 'wagtailadmin_pages:edit' tour.pk %}"
          style="color:#C86B49;font-size:12px;text-decoration:none;padding:4px 10px;border:1px solid rgba(200,107,73,0.3);border-radius:6px;">
         Редактировать
       </a>

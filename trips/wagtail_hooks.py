@@ -50,13 +50,23 @@ class QuickActionsPanel(Component):
     name = "quick_actions"
     order = 40
 
+    def __init__(self, request=None):
+        self.request = request
+
     def render_html(self, parent_context=None):
-        return mark_safe(render_to_string("wagtailadmin/panels/quick_actions.html", {}))
+        # request обязателен: без него {% csrf_token %} в формах панелей
+        # получает пустую строку и сохранение падает с 403.
+        return mark_safe(
+            render_to_string("wagtailadmin/panels/quick_actions.html", {}, request=self.request)
+        )
 
 
 class IncompleteDestinationsPanel(Component):
     name = "incomplete_destinations"
     order = 51
+
+    def __init__(self, request=None):
+        self.request = request
 
     def render_html(self, parent_context=None):
         from trips.models import Destination
@@ -71,7 +81,9 @@ class IncompleteDestinationsPanel(Component):
             return mark_safe("")
         return mark_safe(
             render_to_string(
-                "wagtailadmin/panels/incomplete_destinations.html", {"rows": rows}
+                "wagtailadmin/panels/incomplete_destinations.html",
+                {"rows": rows},
+                request=self.request,
             )
         )
 
@@ -79,6 +91,9 @@ class IncompleteDestinationsPanel(Component):
 class UpcomingDeparturesPanel(Component):
     name = "upcoming_departures"
     order = 52
+
+    def __init__(self, request=None):
+        self.request = request
 
     def render_html(self, parent_context=None):
         from trips.models import Departure
@@ -90,7 +105,9 @@ class UpcomingDeparturesPanel(Component):
         )
         return mark_safe(
             render_to_string(
-                "wagtailadmin/panels/upcoming_departures.html", {"departures": departures}
+                "wagtailadmin/panels/upcoming_departures.html",
+                {"departures": departures},
+                request=self.request,
             )
         )
 
@@ -99,9 +116,9 @@ class UpcomingDeparturesPanel(Component):
 def customize_homepage_panels(request, panels):
     keep = {"site_summary"}
     panels[:] = [p for p in panels if getattr(p, "name", None) in keep]
-    panels.insert(0, QuickActionsPanel())
-    panels.insert(1, UpcomingDeparturesPanel())
-    panels.append(IncompleteDestinationsPanel())
+    panels.insert(0, QuickActionsPanel(request))
+    panels.insert(1, UpcomingDeparturesPanel(request))
+    panels.append(IncompleteDestinationsPanel(request))
     # Панели черновиков нет: сохранение всегда публикует страницу, поэтому
     # «черновики» в админке не появляются вовсе.
 

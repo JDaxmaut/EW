@@ -1,0 +1,54 @@
+{% extends "wagtailadmin/base.html" %}
+
+{% block titletag %}Юридические страницы{% endblock %}
+
+{% block content %}
+<div class="nw-tours-wrap">
+
+  <div class="nw-tours-head">
+    <h1>Юридические страницы</h1>
+  </div>
+
+  <p style="color:#4a5754;margin-top:-6px;max-width:70ch">
+    Оферта, политика и согласия. На эти страницы ссылаются футер, куки-баннер
+    и формы. Нажмите «Редактировать», чтобы поправить текст, или «Открыть»,
+    чтобы посмотреть, как это видит клиент.
+  </p>
+
+  {% if pages %}
+  <table class="listing" style="margin-top:18px">
+    <thead>
+      <tr>
+        <th>Документ</th>
+        <th style="width:180px">Дата редакции</th>
+        <th style="width:240px"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in pages %}
+      <tr>
+        <td>
+          <strong>{{ p.title }}</strong>
+          {% if p.intro %}<br><span style="color:#4a5754;font-size:13px">{{ p.intro }}</span>{% endif %}
+        </td>
+        <td>{{ p.updated|default:"—" }}</td>
+        <td>
+          <a class="button button-small" href="{% url 'wagtailadmin_pages:edit' p.id %}">Редактировать</a>
+          {% if p.live %}
+          <a class="button button-small button-secondary" href="{{ p.url }}" target="_blank" rel="noopener">Открыть</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:#4a5754">Юридических страниц пока нет.</p>
+  {% endif %}
+
+  <p style="color:#4a5754;margin-top:22px">
+    Публичная страница со списком всех документов: <a href="/legal/" target="_blank" rel="noopener">/legal/</a>
+  </p>
+
+</div>
+{% endblock %}

@@ -231,6 +231,22 @@ def tours_list_view(request):
     )
 
 
+def legal_pages_view(request):
+    """Список юридических документов: оферта, политика, согласия."""
+    from trips.models import LegalPage
+
+    pages = (
+        LegalPage.objects.select_related("owner")
+        .live()
+        .order_by("title")
+    )
+    return render(
+        request,
+        "wagtailadmin/legal_pages.html",
+        {"pages": pages},
+    )
+
+
 @hooks.register("register_admin_urls")
 def register_admin_urls():
     return [
@@ -238,6 +254,7 @@ def register_admin_urls():
         path("schedule/quick-save/", quick_save_departures, name="quick_save_departures"),
         path("nw/checklist/<int:page_id>/", checklist_api, name="nw_checklist"),
         path("tours/", tours_list_view, name="tours_list"),
+        path("legal/", legal_pages_view, name="legal_pages"),
     ]
 
 
@@ -259,6 +276,16 @@ def register_tours_menu_item():
         "/cms/tours/",
         icon_name="site",
         order=100,
+    )
+
+
+@hooks.register("register_admin_menu_item")
+def register_legal_menu_item():
+    return MenuItem(
+        "Юридические страницы",
+        "/cms/legal/",
+        icon_name="doc-full",
+        order=181,
     )
 
 
